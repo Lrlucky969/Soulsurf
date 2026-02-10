@@ -30,40 +30,40 @@ const GOALS = [
 
 const CONTENT_POOL = {
   warmup: [
-    { title: "Schulter-Mobilität", icon: "🔄", duration: "5 Min", level: "beginner", content: "Schultern sind der Motor beim Paddeln. Diese Übungen beugen Verletzungen vor und verbessern deine Paddelpower.", steps: ["Armkreisen vorwärts – 15x groß und kontrolliert", "Armkreisen rückwärts – 15x", "Schulter-Shrugs: hoch zu den Ohren, 3 Sek halten, fallen lassen – 10x", "Arm quer über die Brust ziehen, 20 Sek pro Seite", "Hände hinter dem Rücken verschränken, Brust raus – 20 Sek"], videoUrl: "https://www.youtube.com/embed/SHbk-L_8xZU" },
-    { title: "Hüft-Opener & Beine", icon: "🦵", duration: "5 Min", level: "beginner", content: "Offene Hüften sind entscheidend für den Pop-Up und tiefe Turns auf der Welle.", steps: ["Tiefe Ausfallschritte – 10x pro Seite", "Sumo-Squats: breiter Stand, tief – 15x", "Hüftkreisen: große Kreise – 10x pro Richtung", "Pigeon Stretch: 30 Sek pro Seite", "Knie-zur-Brust im Stehen – 10x pro Seite"], videoUrl: "https://www.youtube.com/embed/NG9qbvAN3gQ" },
-    { title: "Core Activation", icon: "🔥", duration: "7 Min", level: "beginner", content: "Dein Core verbindet Ober- und Unterkörper. Ohne starken Core kein stabiler Stand.", steps: ["Plank halten – 30 Sek (steigere auf 60)", "Side Plank – 20 Sek pro Seite", "Dead Bugs: gegengleich Arm/Bein – 10x pro Seite", "Bicycle Crunches – 20x langsam", "Superman Hold: 15 Sek, 3x", "Cat-Cow: 10x im Wechsel"], videoUrl: "https://www.youtube.com/embed/DHD1-2P94DI" },
-    { title: "Pop-Up Drill Warm-Up", icon: "⚡", duration: "5 Min", level: "beginner", content: "Aufwärmen und den wichtigsten Move gleichzeitig trainieren.", steps: ["5 Burpees zum Aufwärmen", "10 langsame Push-Ups", "Push-Up → explosiv aufspringen in Surf-Stance – 10x", "Surf-Stance halten: 10 Sek pro Seite", "Speed-Round: 10 Pop-Ups so schnell wie möglich"], videoUrl: "https://www.youtube.com/embed/wn5KqWwP6uQ" },
-    { title: "Wirbelsäulen-Rotation", icon: "🌀", duration: "5 Min", level: "beginner", content: "Beim Surfen rotierst du ständig. Mobilisiere deine Wirbelsäule vor jeder Session.", steps: ["Thread the Needle: 8x pro Seite", "Sitzende Rotation: 15 Sek pro Seite", "Open Book: 8x pro Seite", "Standing Windmill: 10x abwechselnd", "Scorpion Stretch: 8x pro Seite"], videoUrl: "https://www.youtube.com/embed/4BOTvaRaDjI" },
-    { title: "Atem & Apnoe-Training", icon: "🫁", duration: "8 Min", level: "intermediate", content: "Wer entspannt unter Wasser bleiben kann, hat einen enormen Vorteil bei Wipeouts.", steps: ["Box Breathing: 4-4-4-4 Sek – 5 Zyklen", "Verlängertes Ausatmen: 4 ein, 8 aus – 5 Zyklen", "Atem anhalten: Stoppuhr, 3x Maximum", "Recovery Breathing: 3x schnell nach Anhalten", "Unterwasser-Sim: Atem halten + 10 Squats"], videoUrl: "https://www.youtube.com/embed/LU6Oi80n5J4" },
-    { title: "Beach-Yoga Flow", icon: "🧘", duration: "10 Min", level: "beginner", content: "Ein fließender Yoga-Flow der alle surf-relevanten Muskelgruppen aktiviert und dehnt.", steps: ["Sonnengruß A – 3 Durchgänge", "Krieger I: 30 Sek pro Seite", "Krieger II: 30 Sek pro Seite", "Herabschauender Hund: 45 Sek halten", "Kobra: 15 Sek, 3x (wichtig für Paddel-Position)", "Kind-Pose: 30 Sek Entspannung"], videoUrl: "https://www.youtube.com/embed/7kgZnJqzNaU" },
-    { title: "Sprungkraft & Explosivität", icon: "💥", duration: "6 Min", level: "intermediate", content: "Der Pop-Up erfordert explosive Kraft. Trainiere schnelle Muskelrekrutierung.", steps: ["Squat Jumps: 10x so hoch wie möglich", "Tuck Jumps: 8x Knie zur Brust", "Lateral Bounds: 10x seitlich springen", "Burpee to Pop-Up: 8x", "Box Jumps (oder Stufe): 10x"], videoUrl: "https://www.youtube.com/embed/tKBMiSq0lVE" },
-    { title: "Balance-Training am Strand", icon: "⚖️", duration: "7 Min", level: "beginner", content: "Gleichgewicht ist der Schlüssel zum Surfen. Trainiere auf instabilem Untergrund.", steps: ["Einbeinstand: 30 Sek pro Bein (Augen offen)", "Einbeinstand: 20 Sek pro Bein (Augen zu!)", "Surf-Stance auf weichem Sand: 30 Sek", "Einbein-Squats: 8x pro Seite", "Zehenstand gehen: 20 Schritte vor und zurück"], videoUrl: "https://www.youtube.com/embed/7kgZnJqzNaU" },
-    { title: "Paddel-Power Warm-Up", icon: "💪", duration: "6 Min", level: "intermediate", content: "Aktiviere Schultern, Lat und Trizeps für maximale Paddelkraft.", steps: ["Resistance Band Pull-Aparts: 15x", "Prone Y-T-W Raises (Bauchlage): 8x je Form", "Swimming auf dem Bauch: 30 Sek", "Push-Up Plus (Schulterblätter spreizen): 10x", "Arm-Haulers: 20x (Bauchlage, Arme vor-zurück)"], videoUrl: "https://www.youtube.com/embed/rvJMijyKaBw" },
+    { title: "Schulter-Mobilität", icon: "🔄", duration: "5 Min", level: "beginner", content: "Schultern sind der Motor beim Paddeln. Diese Übungen beugen Verletzungen vor und verbessern deine Paddelpower.", steps: ["Armkreisen vorwärts – 15x groß und kontrolliert", "Armkreisen rückwärts – 15x", "Schulter-Shrugs: hoch zu den Ohren, 3 Sek halten, fallen lassen – 10x", "Arm quer über die Brust ziehen, 20 Sek pro Seite", "Hände hinter dem Rücken verschränken, Brust raus – 20 Sek"], articleUrl: "https://tutorials.barefootsurftravel.com/articles/5-of-the-best-mobility-exercises-to-improve-your-surf-game-reduce-injuries/", articleTitle: "📄 Mobility Exercises – Barefoot Surf" },
+    { title: "Hüft-Opener & Beine", icon: "🦵", duration: "5 Min", level: "beginner", content: "Offene Hüften sind entscheidend für den Pop-Up und tiefe Turns auf der Welle.", steps: ["Tiefe Ausfallschritte – 10x pro Seite", "Sumo-Squats: breiter Stand, tief – 15x", "Hüftkreisen: große Kreise – 10x pro Richtung", "Pigeon Stretch: 30 Sek pro Seite", "Knie-zur-Brust im Stehen – 10x pro Seite"] },
+    { title: "Core Activation", icon: "🔥", duration: "7 Min", level: "beginner", content: "Dein Core verbindet Ober- und Unterkörper. Ohne starken Core kein stabiler Stand.", steps: ["Plank halten – 30 Sek (steigere auf 60)", "Side Plank – 20 Sek pro Seite", "Dead Bugs: gegengleich Arm/Bein – 10x pro Seite", "Bicycle Crunches – 20x langsam", "Superman Hold: 15 Sek, 3x", "Cat-Cow: 10x im Wechsel"] },
+    { title: "Pop-Up Drill Warm-Up", icon: "⚡", duration: "5 Min", level: "beginner", content: "Aufwärmen und den wichtigsten Move gleichzeitig trainieren.", steps: ["5 Burpees zum Aufwärmen", "10 langsame Push-Ups", "Push-Up → explosiv aufspringen in Surf-Stance – 10x", "Surf-Stance halten: 10 Sek pro Seite", "Speed-Round: 10 Pop-Ups so schnell wie möglich"], articleUrl: "https://tutorials.barefootsurftravel.com/articles/what-take-off-technique-is-right-for-you/", articleTitle: "📄 Take-Off Technik wählen – Barefoot Surf" },
+    { title: "Wirbelsäulen-Rotation", icon: "🌀", duration: "5 Min", level: "beginner", content: "Beim Surfen rotierst du ständig. Mobilisiere deine Wirbelsäule vor jeder Session.", steps: ["Thread the Needle: 8x pro Seite", "Sitzende Rotation: 15 Sek pro Seite", "Open Book: 8x pro Seite", "Standing Windmill: 10x abwechselnd", "Scorpion Stretch: 8x pro Seite"] },
+    { title: "Atem & Apnoe-Training", icon: "🫁", duration: "8 Min", level: "intermediate", content: "Wer entspannt unter Wasser bleiben kann, hat einen enormen Vorteil bei Wipeouts.", steps: ["Box Breathing: 4-4-4-4 Sek – 5 Zyklen", "Verlängertes Ausatmen: 4 ein, 8 aus – 5 Zyklen", "Atem anhalten: Stoppuhr, 3x Maximum", "Recovery Breathing: 3x schnell nach Anhalten", "Unterwasser-Sim: Atem halten + 10 Squats"] },
+    { title: "Beach-Yoga Flow", icon: "🧘", duration: "10 Min", level: "beginner", content: "Ein fließender Yoga-Flow der alle surf-relevanten Muskelgruppen aktiviert und dehnt.", steps: ["Sonnengruß A – 3 Durchgänge", "Krieger I: 30 Sek pro Seite", "Krieger II: 30 Sek pro Seite", "Herabschauender Hund: 45 Sek halten", "Kobra: 15 Sek, 3x (wichtig für Paddel-Position)", "Kind-Pose: 30 Sek Entspannung"], articleUrl: "https://tutorials.barefootsurftravel.com/articles/5-of-the-best-mobility-exercises-to-improve-your-surf-game-reduce-injuries/", articleTitle: "📄 Surf Mobility – Barefoot Surf" },
+    { title: "Sprungkraft & Explosivität", icon: "💥", duration: "6 Min", level: "intermediate", content: "Der Pop-Up erfordert explosive Kraft. Trainiere schnelle Muskelrekrutierung.", steps: ["Squat Jumps: 10x so hoch wie möglich", "Tuck Jumps: 8x Knie zur Brust", "Lateral Bounds: 10x seitlich springen", "Burpee to Pop-Up: 8x", "Box Jumps (oder Stufe): 10x"] },
+    { title: "Balance-Training am Strand", icon: "⚖️", duration: "7 Min", level: "beginner", content: "Gleichgewicht ist der Schlüssel zum Surfen. Trainiere auf instabilem Untergrund.", steps: ["Einbeinstand: 30 Sek pro Bein (Augen offen)", "Einbeinstand: 20 Sek pro Bein (Augen zu!)", "Surf-Stance auf weichem Sand: 30 Sek", "Einbein-Squats: 8x pro Seite", "Zehenstand gehen: 20 Schritte vor und zurück"] },
+    { title: "Paddel-Power Warm-Up", icon: "💪", duration: "6 Min", level: "intermediate", content: "Aktiviere Schultern, Lat und Trizeps für maximale Paddelkraft.", steps: ["Resistance Band Pull-Aparts: 15x", "Prone Y-T-W Raises (Bauchlage): 8x je Form", "Swimming auf dem Bauch: 30 Sek", "Push-Up Plus (Schulterblätter spreizen): 10x", "Arm-Haulers: 20x (Bauchlage, Arme vor-zurück)"], articleUrl: "https://tutorials.barefootsurftravel.com/articles/how-to-paddle-on-a-surfboard/", articleTitle: "📄 Paddeltechnik – Barefoot Surf" },
   ],
   theory: [
-    { title: "Ozean lesen lernen", icon: "🌊", duration: "15 Min", level: "beginner", content: "Wellen entstehen durch Wind über der Wasseroberfläche. Je länger die Strecke (Fetch) und je stärker der Wind, desto größer die Wellen.", tips: ["Beobachte das Meer 15 Min bevor du reingehst", "Wellen kommen in Sets von 3-7 Wellen", "Ruhige Phasen zwischen Sets zum Rauspaddeln nutzen", "Schaumwellen (Whitewash) sind perfekt für Anfänger"], keyTerms: ["Set", "Fetch", "Whitewash", "Lineup", "Impact Zone"], videoUrl: "https://www.youtube.com/embed/bpSq3VVj-AI" },
-    { title: "Surf-Etikette & Vorfahrt", icon: "🤝", duration: "10 Min", level: "beginner", content: "Im Wasser gibt es ungeschriebene Gesetze. Die wichtigste Regel: Wer dem Peak am nächsten und zuerst auf der Welle steht, hat Vorfahrt.", tips: ["Nie jemandem die Welle droppen", "Beim Rauspaddeln hinter der Brechzone bleiben", "Anfänger: nicht ins Lineup der Locals paddeln", "Lächeln öffnet jedes Lineup"], keyTerms: ["Drop-In", "Snaking", "Lineup", "Peak", "Priority"], videoUrl: "https://www.youtube.com/embed/RhdHGahIjKQ" },
-    { title: "Wellentypen verstehen", icon: "📐", duration: "12 Min", level: "beginner", content: "Beachbreaks brechen über Sand (unberechenbar, verzeihend). Reefbreaks über Riff/Fels (konstant, gefährlicher). Pointbreaks an Landzungen (lange Rides).", tips: ["Beachbreaks ideal für Anfänger", "Reefbreaks: Booties tragen", "Offshore = glatte Wellen, Onshore = unruhig"], keyTerms: ["Beachbreak", "Reefbreak", "Pointbreak", "Offshore", "Onshore"], videoUrl: "https://www.youtube.com/embed/JMJ2PfMGfRY" },
-    { title: "Sicherheit im Wasser", icon: "⚠️", duration: "15 Min", level: "beginner", content: "Strömungen (Rip Currents) ziehen dich aufs Meer – niemals dagegen anschwimmen! Schwimme parallel zum Strand.", tips: ["Rip Current: quer zur Strömung schwimmen", "Board nie loslassen – Leash tragen!", "Nie bei Gewitter oder Dunkelheit surfen", "Rifffreundliche Sonnencreme benutzen"], keyTerms: ["Rip Current", "Leash", "Channel", "Shorebreak"], videoUrl: "https://www.youtube.com/embed/PuAlDTC_gAI" },
-    { title: "Dein Board kennen", icon: "🏄", duration: "10 Min", level: "beginner", content: "Anfänger brauchen Volumen! Ein Softboard (8-9 Fuß) gibt Stabilität. Shortboards sind für Anfänger frustrierend.", tips: ["Starte mit Softboard – sicherer und verzeihender", "Board mindestens 1 Fuß länger als du", "Ohne Wax rutschst du sofort ab", "Thruster-Setup für Anfänger"], keyTerms: ["Softboard", "Longboard", "Shortboard", "Volume", "Rails"], videoUrl: "https://www.youtube.com/embed/gyUaRwLfdXg" },
-    { title: "Gezeiten & Surf-Forecast", icon: "🌙", duration: "15 Min", level: "intermediate", content: "Bei Ebbe sind Wellen steiler und kraftvoller, bei Flut weicher. Apps wie Surfline zeigen Wellenhöhe, Periode, Wind und Gezeiten.", tips: ["Meiste Spots funktionieren bei Mid-Tide am besten", "Periode > 10 Sek = kraftvolle Wellen", "Forecast am Abend vorher checken", "Offshore-Wind am Morgen = bestes Fenster"], keyTerms: ["Tide", "Swell Period", "Swell Direction", "Wind Speed"], videoUrl: "https://www.youtube.com/embed/TjvWDMBSklI" },
-    { title: "Surf-Fitness verstehen", icon: "💪", duration: "12 Min", level: "intermediate", content: "Paddeln trainiert Schultern und Rücken, Take-Off braucht explosive Kraft, Balance kommt aus der Körpermitte.", tips: ["Schwimmen ist bestes Cross-Training", "Yoga für Balance und Flexibilität", "Schulter-Mobilität täglich dehnen", "Aufwärmen vor jeder Session"], keyTerms: ["Paddel-Fitness", "Core-Stability", "Pop-Up Kraft"], videoUrl: "https://www.youtube.com/embed/DHD1-2P94DI" },
-    { title: "Wind & Wetter lesen", icon: "🌬️", duration: "10 Min", level: "intermediate", content: "Wind ist der wichtigste Faktor für die Wellenqualität. Offshore-Wind (vom Land aufs Meer) glättet die Wellen. Onshore (vom Meer ans Land) macht sie unruhig.", tips: ["Morgenstunden haben oft die besten Bedingungen", "Sideshore-Wind kann auch gute Wellen erzeugen", "Wetterumschwünge bringen oft die besten Swells", "Lerne Wetterkarten zu lesen"], keyTerms: ["Offshore", "Onshore", "Sideshore", "Glasig", "Choppy"], videoUrl: "https://www.youtube.com/embed/bpSq3VVj-AI" },
-    { title: "Board-Shapes & Finnen", icon: "🔧", duration: "12 Min", level: "intermediate", content: "Jedes Board-Shape surft anders. Mehr Rocker = wendiger, weniger Rocker = schneller. Finnen beeinflussen Stabilität und Drehfreude.", tips: ["Single Fin = lässiger Glide, Thruster = Kontrolle", "Fish-Shape: schnell in kleinen Wellen", "Gun: für große Wellen über 2m", "Experimentiere mit verschiedenen Finnen-Setups"], keyTerms: ["Rocker", "Concave", "Fish", "Gun", "Quad"], videoUrl: "https://www.youtube.com/embed/gyUaRwLfdXg" },
-    { title: "Surf-Psychologie & Fear", icon: "🧠", duration: "10 Min", level: "advanced", content: "Angst im Wasser ist normal und gesund. Der Schlüssel ist, zwischen gesunder Vorsicht und limitierender Angst zu unterscheiden.", tips: ["Atme bewusst wenn du Angst spürst", "Steigere dich schrittweise in größere Wellen", "Visualisiere erfolgreiche Rides vor der Session", "Surfe mit Buddies – Sicherheit reduziert Angst"], keyTerms: ["Commitment", "Fear Management", "Visualization"], videoUrl: "https://www.youtube.com/embed/dKYg3u5r9Zc" },
+    { title: "Ozean lesen lernen", icon: "🌊", duration: "15 Min", level: "beginner", content: "Wellen entstehen durch Wind über der Wasseroberfläche. Je länger die Strecke (Fetch) und je stärker der Wind, desto größer die Wellen.", tips: ["Beobachte das Meer 15 Min bevor du reingehst", "Wellen kommen in Sets von 3-7 Wellen", "Ruhige Phasen zwischen Sets zum Rauspaddeln nutzen", "Schaumwellen (Whitewash) sind perfekt für Anfänger"], keyTerms: ["Set", "Fetch", "Whitewash", "Lineup", "Impact Zone"], articleUrl: "https://tutorials.barefootsurftravel.com/articles/how-to-read-waves/", articleTitle: "📄 Wellen lesen – Barefoot Surf" },
+    { title: "Surf-Etikette & Vorfahrt", icon: "🤝", duration: "10 Min", level: "beginner", content: "Im Wasser gibt es ungeschriebene Gesetze. Die wichtigste Regel: Wer dem Peak am nächsten und zuerst auf der Welle steht, hat Vorfahrt.", tips: ["Nie jemandem die Welle droppen", "Beim Rauspaddeln hinter der Brechzone bleiben", "Anfänger: nicht ins Lineup der Locals paddeln", "Lächeln öffnet jedes Lineup"], keyTerms: ["Drop-In", "Snaking", "Lineup", "Peak", "Priority"], articleUrl: "https://tutorials.barefootsurftravel.com/articles/surf-ethics-10-rules-beginner-needs-know/", articleTitle: "📄 10 Surf-Regeln – Barefoot Surf" },
+    { title: "Wellentypen verstehen", icon: "📐", duration: "12 Min", level: "beginner", content: "Beachbreaks brechen über Sand (unberechenbar, verzeihend). Reefbreaks über Riff/Fels (konstant, gefährlicher). Pointbreaks an Landzungen (lange Rides).", tips: ["Beachbreaks ideal für Anfänger", "Reefbreaks: Booties tragen", "Offshore = glatte Wellen, Onshore = unruhig"], keyTerms: ["Beachbreak", "Reefbreak", "Pointbreak", "Offshore", "Onshore"], articleUrl: "https://tutorials.barefootsurftravel.com/articles/how-to-surf-complete-beginners-guide/", articleTitle: "📄 Beginner Guide – Barefoot Surf" },
+    { title: "Sicherheit im Wasser", icon: "⚠️", duration: "15 Min", level: "beginner", content: "Strömungen (Rip Currents) ziehen dich aufs Meer – niemals dagegen anschwimmen! Schwimme parallel zum Strand.", tips: ["Rip Current: quer zur Strömung schwimmen", "Board nie loslassen – Leash tragen!", "Nie bei Gewitter oder Dunkelheit surfen", "Rifffreundliche Sonnencreme benutzen"], keyTerms: ["Rip Current", "Leash", "Channel", "Shorebreak"], articleUrl: "https://tutorials.barefootsurftravel.com/articles/how-to-surf-complete-beginners-guide/", articleTitle: "📄 Sicherheits-Basics – Barefoot Surf" },
+    { title: "Dein Board kennen", icon: "🏄", duration: "10 Min", level: "beginner", content: "Anfänger brauchen Volumen! Ein Softboard (8-9 Fuß) gibt Stabilität. Shortboards sind für Anfänger frustrierend.", tips: ["Starte mit Softboard – sicherer und verzeihender", "Board mindestens 1 Fuß länger als du", "Ohne Wax rutschst du sofort ab", "Thruster-Setup für Anfänger"], keyTerms: ["Softboard", "Longboard", "Shortboard", "Volume", "Rails"], articleUrl: "https://tutorials.barefootsurftravel.com/articles/types-of-surfboards/", articleTitle: "📄 Surfboard-Typen – Barefoot Surf" },
+    { title: "Gezeiten & Surf-Forecast", icon: "🌙", duration: "15 Min", level: "intermediate", content: "Bei Ebbe sind Wellen steiler und kraftvoller, bei Flut weicher. Apps wie Surfline zeigen Wellenhöhe, Periode, Wind und Gezeiten.", tips: ["Meiste Spots funktionieren bei Mid-Tide am besten", "Periode > 10 Sek = kraftvolle Wellen", "Forecast am Abend vorher checken", "Offshore-Wind am Morgen = bestes Fenster"], keyTerms: ["Tide", "Swell Period", "Swell Direction", "Wind Speed"], articleUrl: "https://tutorials.barefootsurftravel.com/articles/how-to-read-waves/", articleTitle: "📄 Wellen & Gezeiten – Barefoot Surf" },
+    { title: "Surf-Fitness verstehen", icon: "💪", duration: "12 Min", level: "intermediate", content: "Paddeln trainiert Schultern und Rücken, Take-Off braucht explosive Kraft, Balance kommt aus der Körpermitte.", tips: ["Schwimmen ist bestes Cross-Training", "Yoga für Balance und Flexibilität", "Schulter-Mobilität täglich dehnen", "Aufwärmen vor jeder Session"], keyTerms: ["Paddel-Fitness", "Core-Stability", "Pop-Up Kraft"], articleUrl: "https://tutorials.barefootsurftravel.com/articles/5-of-the-best-mobility-exercises-to-improve-your-surf-game-reduce-injuries/", articleTitle: "📄 5 Mobility Exercises – Barefoot Surf" },
+    { title: "Wind & Wetter lesen", icon: "🌬️", duration: "10 Min", level: "intermediate", content: "Wind ist der wichtigste Faktor für die Wellenqualität. Offshore-Wind (vom Land aufs Meer) glättet die Wellen. Onshore (vom Meer ans Land) macht sie unruhig.", tips: ["Morgenstunden haben oft die besten Bedingungen", "Sideshore-Wind kann auch gute Wellen erzeugen", "Wetterumschwünge bringen oft die besten Swells", "Lerne Wetterkarten zu lesen"], keyTerms: ["Offshore", "Onshore", "Sideshore", "Glasig", "Choppy"], articleUrl: "https://tutorials.barefootsurftravel.com/articles/how-to-read-waves/", articleTitle: "📄 Wind & Wellen lesen – Barefoot Surf" },
+    { title: "Board-Shapes & Finnen", icon: "🔧", duration: "12 Min", level: "intermediate", content: "Jedes Board-Shape surft anders. Mehr Rocker = wendiger, weniger Rocker = schneller. Finnen beeinflussen Stabilität und Drehfreude.", tips: ["Single Fin = lässiger Glide, Thruster = Kontrolle", "Fish-Shape: schnell in kleinen Wellen", "Gun: für große Wellen über 2m", "Experimentiere mit verschiedenen Finnen-Setups"], keyTerms: ["Rocker", "Concave", "Fish", "Gun", "Quad"], videoUrl: "https://www.youtube.com/embed/OHpG_rNj8eQ", articleUrl: "https://tutorials.barefootsurftravel.com/articles/types-of-surfboards/", articleTitle: "📄 Board-Shapes – Barefoot Surf", videoUrl: "https://www.youtube.com/embed/OHpG_rNj8eQ" },
+    { title: "Surf-Psychologie & Fear", icon: "🧠", duration: "10 Min", level: "advanced", content: "Angst im Wasser ist normal und gesund. Der Schlüssel ist, zwischen gesunder Vorsicht und limitierender Angst zu unterscheiden.", tips: ["Atme bewusst wenn du Angst spürst", "Steigere dich schrittweise in größere Wellen", "Visualisiere erfolgreiche Rides vor der Session", "Surfe mit Buddies – Sicherheit reduziert Angst"], keyTerms: ["Commitment", "Fear Management", "Visualization"], articleUrl: "https://tutorials.barefootsurftravel.com/articles/how-to-surf-complete-beginners-guide/", articleTitle: "📄 Mindset & Tipps – Barefoot Surf" },
   ],
   practice: [
-    { title: "Pop-Up an Land üben", icon: "🤸", duration: "30 Min", level: "beginner", content: "Der Pop-Up ist DIE fundamentale Bewegung. Übe ihn 50x am Tag am Strand.", steps: ["Flach auf den Bauch, Hände neben der Brust", "Explosiv hochdrücken – NICHT auf die Knie!", "Hinterer Fuß zuerst aufs Board (quer)", "Vorderfuß zwischen die Hände", "Knie gebeugt, Blick nach vorne", "50x wiederholen – Muskelgedächtnis!"], proTip: "Filme dich selbst! Die meisten denken sie machen es richtig, bis sie das Video sehen.", videoUrl: "https://www.youtube.com/embed/wn5KqWwP6uQ" },
-    { title: "Paddeltechnik perfektionieren", icon: "💧", duration: "45 Min", level: "beginner", content: "80% deiner Zeit verbringst du mit Paddeln. Effiziente Technik spart Energie.", steps: ["Position finden: Nase ~5cm über Wasser", "Arme tief eintauchen, nicht an Oberfläche kratzen", "Fingerspitzen zusammen, Unterwasser = Power", "Kurze, kraftvolle Züge", "Blick nach vorne", "Beine zusammen und still!"], proTip: "20 Min nur paddeln ohne Wellen zu nehmen – baut Ausdauer.", videoUrl: "https://www.youtube.com/embed/rvJMijyKaBw" },
-    { title: "Whitewash-Wellen reiten", icon: "🫧", duration: "60 Min", level: "beginner", content: "Gebrochene Schaumwellen sind perfekt zum Üben: konstant, verzeihend und nah am Strand.", steps: ["Hüfttief im Wasser stehen", "Schaumwelle kommt → zum Strand drehen", "Aufs Board springen, 3-4 kräftige Züge", "Welle schiebt dich → Pop-Up!", "Zum Strand gleiten", "Ziel: 10 Wellen hintereinander stehen"], proTip: "2-3 Paddelzüge BEVOR du aufstehst. Speed = Stabilität!", videoUrl: "https://www.youtube.com/embed/dqOPEZJVmMU" },
-    { title: "Turtle Roll & Duck Dive", icon: "🐢", duration: "30 Min", level: "beginner", content: "Um zu den guten Wellen zu kommen, musst du durch die Brechzone.", steps: ["Turtle Roll: Rails fest greifen", "Mit dem Board umdrehen (du unten)", "Festhalten während Welle über dich rollt", "Zurückdrehen und weiterpaddeln", "Duck Dive: Nose runterdrücken", "Knie drückt Tail nach – unter die Welle"], proTip: "Starte den Turtle Roll 2m VOR der Welle!", videoUrl: "https://www.youtube.com/embed/GjyntY-Xr6U" },
-    { title: "Grüne Wellen anpaddeln", icon: "🟢", duration: "60 Min", level: "intermediate", content: "Ungebrochene grüne Wellen nehmen – positioniere dich im Lineup und paddle früh und hart.", steps: ["Leicht vor der Brechzone positionieren", "Mittlere Welle im Set wählen", "Früh Richtung Strand drehen, HART paddeln", "6-8 kraftvolle Paddelzüge", "Moment des 'Catch' spüren", "Pop-Up und schräg zur Welle abfahren"], proTip: "Paddle früher und härter als du denkst – der #1 Anfängerfehler!", videoUrl: "https://www.youtube.com/embed/wM4vjaKBM_Q" },
-    { title: "Bottom Turn Basics", icon: "↩️", duration: "45 Min", level: "intermediate", content: "Das Fundament aller Manöver. Welle hinunterfahren, unten Turn einleiten.", steps: ["Schräg die Welle hinunterfahren", "Gewicht auf Fersen (Backside) oder Zehen (Frontside)", "Blick und Schultern in Drehrichtung", "Knie tief, Schwerpunkt niedrig", "Geschwindigkeit aus dem Turn mitnehmen", "Zurück die Wellenwand hoch"], proTip: "Schau IMMER dahin wo du hin willst, nie aufs Board.", videoUrl: "https://www.youtube.com/embed/X3S_9BgrHJU" },
-    { title: "Linie halten & Trimmen", icon: "〰️", duration: "40 Min", level: "intermediate", content: "Auf der Welle bleiben heißt die richtige Linie finden – nicht zu hoch, nicht zu tief auf der Wellenwand.", steps: ["Nach dem Take-Off sofort die Schulter anvisieren", "Gewicht leicht nach vorne = mehr Speed", "Gewicht nach hinten = abbremsen", "Die Powerpocket finden (steilster Teil der Welle)", "Kleine Gewichtsverlagerungen statt großer Bewegungen", "Arme zur Balance nutzen – wie ein Seiltänzer"], proTip: "Die Powerpocket ist direkt unter der brechenden Lippe – dort hast du maximale Energie.", videoUrl: "https://www.youtube.com/embed/jAFycMFMHVg" },
-    { title: "Cutback & Top Turn", icon: "🔄", duration: "60 Min", level: "advanced", content: "Cutback bringt dich zurück zur Wellenkraft. Top Turn am Kamm leitet neue Manöver ein.", steps: ["Speed durch 2-3 Pumps aufbauen", "Am Kamm: Gewicht auf hinteren Fuß", "Schultern und Kopf in neue Richtung", "Vorderer Arm zeigt die Richtung", "Board folgt durch den Arc", "Gewicht beim Ausfahren zentrieren"], proTip: "Keine Speed = kein Turn. Immer erst Speed aufbauen!", videoUrl: "https://www.youtube.com/embed/jAFycMFMHVg" },
-    { title: "Surf-Meditation & Flow", icon: "🧘", duration: "20 Min", level: "beginner", content: "Die besten Wellen fängst du, wenn du aufhörst zu denken und anfängst zu fühlen.", steps: ["Auf dem Board im ruhigen Wasser sitzen", "Augen schließen, Dünung spüren", "10x atmen: 4 Sek ein, 6 Sek aus", "Augen öffnen, Horizont beobachten", "Gedanken weiterziehen lassen", "Nächste Welle fühlen bevor du sie siehst"], proTip: "Stress = steifer Körper = schlechtes Surfen. Relax!", videoUrl: "https://www.youtube.com/embed/dKYg3u5r9Zc" },
-    { title: "Wipeout Recovery", icon: "🌪️", duration: "30 Min", level: "intermediate", content: "Wipeouts gehören dazu. Wer sie meistert, surft mutiger und progressiver.", steps: ["Beim Fallen: Arme schützend über den Kopf", "Unter Wasser: Fötus-Position, schütze den Kopf", "Nicht sofort auftauchen – warte bis die Turbulenz nachlässt", "Orientiere dich an den Luftblasen (zeigen nach oben)", "Board per Leash zu dir ziehen", "Sofort Richtung checken und nächste Welle beobachten"], proTip: "Übe Atem anhalten im Pool. 30 Sekunden unter Wasser reichen für 95% aller Wipeouts.", videoUrl: "https://www.youtube.com/embed/PuAlDTC_gAI" },
+    { title: "Pop-Up an Land üben", icon: "🤸", duration: "30 Min", level: "beginner", content: "Der Pop-Up ist DIE fundamentale Bewegung. Übe ihn 50x am Tag am Strand.", steps: ["Flach auf den Bauch, Hände neben der Brust", "Explosiv hochdrücken – NICHT auf die Knie!", "Hinterer Fuß zuerst aufs Board (quer)", "Vorderfuß zwischen die Hände", "Knie gebeugt, Blick nach vorne", "50x wiederholen – Muskelgedächtnis!"], proTip: "Filme dich selbst! Die meisten denken sie machen es richtig, bis sie das Video sehen.", videoUrl: "https://www.youtube.com/embed/dBmHlpliXfk", articleUrl: "https://tutorials.barefootsurftravel.com/articles/how-to-do-a-take-off", articleTitle: "📄 Pop-Up Technik – Barefoot Surf", videoUrl: "https://www.youtube.com/embed/dBmHlpliXfk" },
+    { title: "Paddeltechnik perfektionieren", icon: "💧", duration: "45 Min", level: "beginner", content: "80% deiner Zeit verbringst du mit Paddeln. Effiziente Technik spart Energie.", steps: ["Position finden: Nase ~5cm über Wasser", "Arme tief eintauchen, nicht an Oberfläche kratzen", "Fingerspitzen zusammen, Unterwasser = Power", "Kurze, kraftvolle Züge", "Blick nach vorne", "Beine zusammen und still!"], proTip: "20 Min nur paddeln ohne Wellen zu nehmen – baut Ausdauer.", videoUrl: "https://www.youtube.com/embed/XCaiQYVEut4", articleUrl: "https://tutorials.barefootsurftravel.com/articles/how-to-paddle-on-a-surfboard/", articleTitle: "📄 Paddeltechnik – Barefoot Surf", videoUrl: "https://www.youtube.com/embed/XCaiQYVEut4" },
+    { title: "Whitewash-Wellen reiten", icon: "🫧", duration: "60 Min", level: "beginner", content: "Gebrochene Schaumwellen sind perfekt zum Üben: konstant, verzeihend und nah am Strand.", steps: ["Hüfttief im Wasser stehen", "Schaumwelle kommt → zum Strand drehen", "Aufs Board springen, 3-4 kräftige Züge", "Welle schiebt dich → Pop-Up!", "Zum Strand gleiten", "Ziel: 10 Wellen hintereinander stehen"], proTip: "2-3 Paddelzüge BEVOR du aufstehst. Speed = Stabilität!", articleUrl: "https://tutorials.barefootsurftravel.com/articles/how-to-surf-complete-beginners-guide/", articleTitle: "📄 Wellen fangen – Barefoot Surf" },
+    { title: "Turtle Roll & Duck Dive", icon: "🐢", duration: "30 Min", level: "beginner", content: "Um zu den guten Wellen zu kommen, musst du durch die Brechzone.", steps: ["Turtle Roll: Rails fest greifen", "Mit dem Board umdrehen (du unten)", "Festhalten während Welle über dich rollt", "Zurückdrehen und weiterpaddeln", "Duck Dive: Nose runterdrücken", "Knie drückt Tail nach – unter die Welle"], proTip: "Starte den Turtle Roll 2m VOR der Welle!", articleUrl: "https://tutorials.barefootsurftravel.com/articles/paddle-turtle-roll", articleTitle: "📄 Turtle Roll – Barefoot Surf" },
+    { title: "Grüne Wellen anpaddeln", icon: "🟢", duration: "60 Min", level: "intermediate", content: "Ungebrochene grüne Wellen nehmen – positioniere dich im Lineup und paddle früh und hart.", steps: ["Leicht vor der Brechzone positionieren", "Mittlere Welle im Set wählen", "Früh Richtung Strand drehen, HART paddeln", "6-8 kraftvolle Paddelzüge", "Moment des 'Catch' spüren", "Pop-Up und schräg zur Welle abfahren"], proTip: "Paddle früher und härter als du denkst – der #1 Anfängerfehler!", articleUrl: "https://tutorials.barefootsurftravel.com/articles/positioning-for-waves/", articleTitle: "📄 Positioning – Barefoot Surf" },
+    { title: "Bottom Turn Basics", icon: "↩️", duration: "45 Min", level: "intermediate", content: "Das Fundament aller Manöver. Welle hinunterfahren, unten Turn einleiten.", steps: ["Schräg die Welle hinunterfahren", "Gewicht auf Fersen (Backside) oder Zehen (Frontside)", "Blick und Schultern in Drehrichtung", "Knie tief, Schwerpunkt niedrig", "Geschwindigkeit aus dem Turn mitnehmen", "Zurück die Wellenwand hoch"], proTip: "Schau IMMER dahin wo du hin willst, nie aufs Board.", articleUrl: "https://tutorials.barefootsurftravel.com/articles/bottom-turn/", articleTitle: "📄 Bottom Turn – Barefoot Surf" },
+    { title: "Linie halten & Trimmen", icon: "〰️", duration: "40 Min", level: "intermediate", content: "Auf der Welle bleiben heißt die richtige Linie finden – nicht zu hoch, nicht zu tief auf der Wellenwand.", steps: ["Nach dem Take-Off sofort die Schulter anvisieren", "Gewicht leicht nach vorne = mehr Speed", "Gewicht nach hinten = abbremsen", "Die Powerpocket finden (steilster Teil der Welle)", "Kleine Gewichtsverlagerungen statt großer Bewegungen", "Arme zur Balance nutzen – wie ein Seiltänzer"], proTip: "Die Powerpocket ist direkt unter der brechenden Lippe – dort hast du maximale Energie.", articleUrl: "https://tutorials.barefootsurftravel.com/articles/how-to-surf-down-the-line/", articleTitle: "📄 Down the Line – Barefoot Surf" },
+    { title: "Cutback & Top Turn", icon: "🔄", duration: "60 Min", level: "advanced", content: "Cutback bringt dich zurück zur Wellenkraft. Top Turn am Kamm leitet neue Manöver ein.", steps: ["Speed durch 2-3 Pumps aufbauen", "Am Kamm: Gewicht auf hinteren Fuß", "Schultern und Kopf in neue Richtung", "Vorderer Arm zeigt die Richtung", "Board folgt durch den Arc", "Gewicht beim Ausfahren zentrieren"], proTip: "Keine Speed = kein Turn. Immer erst Speed aufbauen!", articleUrl: "https://tutorials.barefootsurftravel.com/articles/cutback/", articleTitle: "📄 Cutback Technik – Barefoot Surf" },
+    { title: "Surf-Meditation & Flow", icon: "🧘", duration: "20 Min", level: "beginner", content: "Die besten Wellen fängst du, wenn du aufhörst zu denken und anfängst zu fühlen.", steps: ["Auf dem Board im ruhigen Wasser sitzen", "Augen schließen, Dünung spüren", "10x atmen: 4 Sek ein, 6 Sek aus", "Augen öffnen, Horizont beobachten", "Gedanken weiterziehen lassen", "Nächste Welle fühlen bevor du sie siehst"], proTip: "Stress = steifer Körper = schlechtes Surfen. Relax!" },
+    { title: "Wipeout Recovery", icon: "🌪️", duration: "30 Min", level: "intermediate", content: "Wipeouts gehören dazu. Wer sie meistert, surft mutiger und progressiver.", steps: ["Beim Fallen: Arme schützend über den Kopf", "Unter Wasser: Fötus-Position, schütze den Kopf", "Nicht sofort auftauchen – warte bis die Turbulenz nachlässt", "Orientiere dich an den Luftblasen (zeigen nach oben)", "Board per Leash zu dir ziehen", "Sofort Richtung checken und nächste Welle beobachten"], proTip: "Übe Atem anhalten im Pool. 30 Sekunden unter Wasser reichen für 95% aller Wipeouts.", videoUrl: "https://www.youtube.com/embed/MyJJedytKR4", videoUrl: "https://www.youtube.com/embed/MyJJedytKR4" },
   ]
 };
 
@@ -186,6 +186,7 @@ const LessonCard = ({ lesson, index, onOpen }) => {
             <span style={{ fontSize: 10, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", color: c.tag, background: c.tagBg, padding: "2px 8px", borderRadius: 20, fontFamily: "'Space Mono', monospace" }}>{c.label}</span>
             <span style={{ fontSize: 10, fontWeight: 600, color: "#78909C", background: "#ECEFF1", padding: "2px 8px", borderRadius: 20, fontFamily: "'Space Mono', monospace" }}>{lesson.duration}</span>
             {lesson.videoUrl && <span style={{ fontSize: 10, fontWeight: 600, color: "#C62828", background: "#FFEBEE", padding: "2px 8px", borderRadius: 20, fontFamily: "'Space Mono', monospace" }}>▶ Video</span>}
+            {lesson.articleUrl && <span style={{ fontSize: 10, fontWeight: 600, color: "#1565C0", background: "#E3F2FD", padding: "2px 8px", borderRadius: 20, fontFamily: "'Space Mono', monospace" }}>📄 Artikel</span>}
           </div>
           <h3 style={{ fontFamily: "'Playfair Display', serif", fontSize: 17, fontWeight: 700, color: "#263238", margin: 0, lineHeight: 1.3 }}>{lesson.title}</h3>
           <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: "#546E7A", margin: "6px 0 0", lineHeight: 1.5, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{lesson.content}</p>
@@ -226,6 +227,20 @@ const LessonModal = ({ lesson, onClose }) => {
 
         {lesson.videoUrl && <VideoEmbed url={lesson.videoUrl} />}
 
+        {lesson.articleUrl && (
+          <a href={lesson.articleUrl} target="_blank" rel="noopener noreferrer" style={{ display: "flex", alignItems: "center", gap: 10, background: "linear-gradient(135deg, #E3F2FD, #BBDEFB)", borderRadius: 14, padding: "14px 18px", marginBottom: 16, textDecoration: "none", border: "1px solid #90CAF9", transition: "all 0.2s ease" }}
+            onMouseEnter={e => e.currentTarget.style.transform = "translateY(-2px)"}
+            onMouseLeave={e => e.currentTarget.style.transform = "none"}
+          >
+            <span style={{ fontSize: 24 }}>📄</span>
+            <div>
+              <div style={{ fontFamily: "'Space Mono', monospace", fontSize: 10, color: "#1565C0", textTransform: "uppercase", letterSpacing: "0.08em" }}>Weiterführender Artikel</div>
+              <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14, fontWeight: 600, color: "#0D47A1" }}>{lesson.articleTitle || "Artikel lesen →"}</div>
+            </div>
+            <span style={{ marginLeft: "auto", fontSize: 18, color: "#1565C0" }}>↗</span>
+          </a>
+        )}
+
         {lesson.tips && (
           <div style={{ marginBottom: 20 }}>
             <h4 style={{ fontFamily: "'Space Mono', monospace", fontSize: 12, color: "#E65100", textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 10 }}>💡 Tipps</h4>
@@ -265,23 +280,73 @@ const LessonModal = ({ lesson, onClose }) => {
   );
 };
 
+// --- localStorage helpers ---
+const STORAGE_KEY = "soulsurf_data";
+function loadSaved() {
+  try { const d = localStorage.getItem(STORAGE_KEY); return d ? JSON.parse(d) : null; } catch { return null; }
+}
+function saveData(data) {
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify({ ...data, savedAt: new Date().toISOString() })); } catch {}
+}
+function clearData() {
+  try { localStorage.removeItem(STORAGE_KEY); } catch {}
+}
+
 export default function SurfApp() {
-  const [screen, setScreen] = useState("home");
-  const [days, setDays] = useState("");
-  const [goal, setGoal] = useState("");
-  const [spot, setSpot] = useState("");
-  const [program, setProgram] = useState(null);
+  const saved = loadSaved();
+  const hasSaved = saved && saved.days && saved.goal && saved.spot;
+
+  const [screen, setScreen] = useState(hasSaved ? "home" : "home");
+  const [days, setDays] = useState(saved?.days || "");
+  const [goal, setGoal] = useState(saved?.goal || "");
+  const [spot, setSpot] = useState(saved?.spot || "");
+  const [program, setProgram] = useState(hasSaved ? generateProgram(saved.days, saved.goal, saved.spot) : null);
   const [openLesson, setOpenLesson] = useState(null);
   const [filter, setFilter] = useState("all");
   const [activeDay, setActiveDay] = useState(null);
-  const [completed, setCompleted] = useState({});
+  const [completed, setCompleted] = useState(saved?.completed || {});
   const [spotSearch, setSpotSearch] = useState("");
+  const [showResetConfirm, setShowResetConfirm] = useState(false);
 
-  const toggle = (id) => setCompleted(p => ({ ...p, [id]: !p[id] }));
-  const build = () => { if (!days || !goal || !spot) return; setProgram(generateProgram(days, goal, spot)); setScreen("program"); setActiveDay(null); setCompleted({}); };
+  const toggle = (id) => {
+    setCompleted(p => {
+      const next = { ...p, [id]: !p[id] };
+      saveData({ days, goal, spot, completed: next });
+      return next;
+    });
+  };
+
+  const build = () => {
+    if (!days || !goal || !spot) return;
+    const p = generateProgram(days, goal, spot);
+    setProgram(p);
+    setScreen("program");
+    setActiveDay(null);
+    setCompleted({});
+    saveData({ days, goal, spot, completed: {} });
+  };
+
+  const continueSaved = () => {
+    if (!hasSaved) return;
+    setDays(saved.days); setGoal(saved.goal); setSpot(saved.spot);
+    setProgram(generateProgram(saved.days, saved.goal, saved.spot));
+    setCompleted(saved.completed || {});
+    setScreen("program"); setActiveDay(null);
+  };
+
+  const resetProgram = () => {
+    clearData();
+    setProgram(null); setDays(""); setGoal(""); setSpot("");
+    setCompleted({}); setScreen("home"); setShowResetConfirm(false);
+  };
+
   const total = program?.program?.reduce((s, d) => s + d.lessons.length, 0) || 0;
   const done = Object.values(completed).filter(Boolean).length;
   const spots = SURF_SPOTS.filter(s => s.name.toLowerCase().includes(spotSearch.toLowerCase()) || s.waveType.toLowerCase().includes(spotSearch.toLowerCase()));
+  const savedSpot = hasSaved ? SURF_SPOTS.find(s => s.id === saved.spot) : null;
+  const savedGoal = hasSaved ? GOALS.find(g => g.id === saved.goal) : null;
+  const savedDone = hasSaved ? Object.values(saved.completed || {}).filter(Boolean).length : 0;
+  const savedTotal = hasSaved ? generateProgram(saved.days, saved.goal, saved.spot).program.reduce((s, d) => s + d.lessons.length, 0) : 0;
 
   return (
     <>
@@ -299,14 +364,16 @@ export default function SurfApp() {
         <WaveBackground />
         <header style={{ position: "sticky", top: 0, zIndex: 100, padding: "12px 20px", background: "rgba(255,253,247,0.85)", backdropFilter: "blur(20px)", borderBottom: "1px solid rgba(0,0,0,0.05)" }}>
           <div style={{ maxWidth: 700, margin: "0 auto", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-            <div onClick={() => { setScreen("home"); setProgram(null); setCompleted({}); }} style={{ cursor: "pointer", display: "flex", alignItems: "center", gap: 10 }}>
+            <div onClick={() => setScreen("home")} style={{ cursor: "pointer", display: "flex", alignItems: "center", gap: 10 }}>
               <span style={{ fontSize: 28, animation: "float 3s ease-in-out infinite" }}>🏄</span>
               <div>
                 <h1 style={{ fontFamily: "'Playfair Display', serif", fontSize: 22, fontWeight: 900, color: "#263238", lineHeight: 1 }}>Soul<span style={{ color: "#009688" }}>Surf</span></h1>
                 <span style={{ fontFamily: "'Space Mono', monospace", fontSize: 9, color: "#78909C", letterSpacing: "0.15em", textTransform: "uppercase" }}>ride the vibe ☮</span>
               </div>
             </div>
-            {screen === "program" && <button onClick={() => setScreen("builder")} style={{ background: "linear-gradient(135deg, #FF7043, #FFB74D)", color: "white", border: "none", borderRadius: 20, padding: "8px 16px", fontSize: 13, fontWeight: 700, cursor: "pointer", fontFamily: "'Space Mono', monospace" }}>✎ Neu planen</button>}
+            <div style={{ display: "flex", gap: 8 }}>
+              {screen === "program" && <button onClick={() => setScreen("builder")} style={{ background: "linear-gradient(135deg, #FF7043, #FFB74D)", color: "white", border: "none", borderRadius: 20, padding: "8px 16px", fontSize: 13, fontWeight: 700, cursor: "pointer", fontFamily: "'Space Mono', monospace" }}>✎ Neu planen</button>}
+            </div>
           </div>
         </header>
 
@@ -317,10 +384,49 @@ export default function SurfApp() {
               <div style={{ fontSize: 80, marginBottom: 16, animation: "float 4s ease-in-out infinite" }}>🌊</div>
               <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: 42, fontWeight: 900, color: "#1a1a1a", lineHeight: 1.1, marginBottom: 12 }}>Lerne Surfen.<br /><span style={{ color: "#009688" }}>Finde deinen Flow.</span></h2>
               <p style={{ fontSize: 17, color: "#546E7A", maxWidth: 440, margin: "0 auto 40px", lineHeight: 1.6 }}>Dein persönliches Surf-Programm mit Warm-Ups, Theorie, Praxis und Video-Tutorials – angepasst an dein Level, Ziel und deinen Spot.</p>
+
+              {/* Saved Program Card */}
+              {hasSaved && (
+                <div style={{ background: "linear-gradient(135deg, #004D40, #00695C)", borderRadius: 20, padding: "24px 20px", marginBottom: 24, textAlign: "left", color: "white", position: "relative", overflow: "hidden", animation: "slideUp 0.5s ease forwards", opacity: 0 }}>
+                  <div style={{ position: "absolute", top: -15, right: -15, fontSize: 80, opacity: 0.1 }}>🏄</div>
+                  <div style={{ fontFamily: "'Space Mono', monospace", fontSize: 10, textTransform: "uppercase", letterSpacing: "0.15em", opacity: 0.7, marginBottom: 8 }}>💾 Gespeichertes Programm</div>
+                  <div style={{ fontFamily: "'Playfair Display', serif", fontSize: 20, fontWeight: 800, marginBottom: 8 }}>
+                    {saved.days} Tage · {savedGoal?.emoji} {savedGoal?.name}
+                  </div>
+                  <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 12 }}>
+                    <span style={{ background: "rgba(255,255,255,0.15)", borderRadius: 16, padding: "4px 10px", fontSize: 12 }}>{savedSpot?.emoji} {savedSpot?.name}</span>
+                    <span style={{ background: "rgba(255,255,255,0.15)", borderRadius: 16, padding: "4px 10px", fontSize: 12 }}>✓ {savedDone}/{savedTotal} erledigt</span>
+                  </div>
+                  {/* Mini progress bar */}
+                  <div style={{ background: "rgba(255,255,255,0.2)", borderRadius: 10, height: 6, overflow: "hidden", marginBottom: 16 }}>
+                    <div style={{ background: "linear-gradient(90deg, #FFB74D, #FF7043)", height: "100%", borderRadius: 10, width: `${savedTotal > 0 ? (savedDone / savedTotal) * 100 : 0}%` }} />
+                  </div>
+                  <div style={{ display: "flex", gap: 10 }}>
+                    <button onClick={continueSaved} style={{ flex: 1, background: "white", color: "#004D40", border: "none", borderRadius: 14, padding: "14px", fontSize: 16, fontWeight: 700, cursor: "pointer", fontFamily: "'Playfair Display', serif" }}>
+                      ▶ Weiter surfen
+                    </button>
+                    <button onClick={() => setShowResetConfirm(true)} style={{ background: "rgba(255,255,255,0.15)", color: "white", border: "1px solid rgba(255,255,255,0.3)", borderRadius: 14, padding: "14px 18px", fontSize: 14, cursor: "pointer" }}>
+                      🗑
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {/* Reset Confirmation */}
+              {showResetConfirm && (
+                <div style={{ background: "#FFF3E0", border: "2px solid #FFB74D", borderRadius: 16, padding: "20px", marginBottom: 24, textAlign: "center", animation: "slideUp 0.3s ease forwards", opacity: 0 }}>
+                  <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 15, color: "#4E342E", marginBottom: 14 }}>Programm und Fortschritt wirklich löschen?</p>
+                  <div style={{ display: "flex", gap: 10, justifyContent: "center" }}>
+                    <button onClick={resetProgram} style={{ background: "#E53935", color: "white", border: "none", borderRadius: 12, padding: "10px 24px", fontSize: 14, fontWeight: 700, cursor: "pointer" }}>Ja, löschen</button>
+                    <button onClick={() => setShowResetConfirm(false)} style={{ background: "#ECEFF1", color: "#546E7A", border: "none", borderRadius: 12, padding: "10px 24px", fontSize: 14, fontWeight: 600, cursor: "pointer" }}>Abbrechen</button>
+                  </div>
+                </div>
+              )}
+
               <button onClick={() => setScreen("builder")} style={{ background: "linear-gradient(135deg, #009688, #4DB6AC)", color: "white", border: "none", borderRadius: 50, padding: "18px 44px", fontSize: 18, fontWeight: 700, cursor: "pointer", fontFamily: "'Playfair Display', serif", boxShadow: "0 8px 30px rgba(0,150,136,0.3)", transition: "all 0.3s ease" }}
                 onMouseEnter={e => e.currentTarget.style.transform = "translateY(-2px) scale(1.03)"}
                 onMouseLeave={e => e.currentTarget.style.transform = "none"}
-              >Programm erstellen 🤙</button>
+              >{hasSaved ? "Neues Programm erstellen" : "Programm erstellen 🤙"}</button>
               <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 14, marginTop: 60 }}>
                 {[{ e: "🔥", t: "Warm-Up", d: "Aufwärmen vor jeder Session" }, { e: "📖", t: "Theorie", d: "Ozean, Wellen & Sicherheit" }, { e: "🏄", t: "Praxis", d: "Pop-Up, Paddeln & Wellen" }, { e: "▶", t: "Videos", d: "Tutorials in jeder Lektion" }].map((f, i) => (
                   <div key={i} style={{ background: "rgba(255,255,255,0.7)", borderRadius: 20, padding: "24px 12px", border: "1px solid rgba(0,0,0,0.05)", animation: "slideUp 0.5s ease forwards", animationDelay: `${i * 120}ms`, opacity: 0 }}>
@@ -466,3 +572,4 @@ export default function SurfApp() {
     </>
   );
 }
+
