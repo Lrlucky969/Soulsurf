@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { SURF_SPOTS, GOALS, BOARD_TYPES, EXPERIENCE_LEVELS, CONTENT_POOL, recommendBoard, SKILL_TREE } from './data.js';
+import { SURF_SPOTS, GOALS, BOARD_TYPES, EXPERIENCE_LEVELS, CONTENT_POOL, recommendBoard, SKILL_TREE, analyzeDiary, analyzeEntry } from './data.js';
 import { generateProgram } from './generator.js';
 import { WaveBackground, LessonCard, LessonModal } from './components.jsx';
 import { useWeather, windDirLabel, weatherLabel, useSwell, swellRating } from './weather.js';
@@ -240,7 +240,7 @@ export default function SurfApp() {
 
   const exportData = () => {
     try {
-      const data = { days, goal, spot, board, experience, equipment: { board, experience }, completed, diary, activeDay, surfDays, exportedAt: new Date().toISOString(), version: "3.0" };
+      const data = { days, goal, spot, board, experience, equipment: { board, experience }, completed, diary, activeDay, surfDays, exportedAt: new Date().toISOString(), version: "3.1" };
       const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
@@ -311,6 +311,9 @@ export default function SurfApp() {
   });
 
   const spots = SURF_SPOTS.filter(s => s.name.toLowerCase().includes(spotSearch.toLowerCase()) || s.waveType.toLowerCase().includes(spotSearch.toLowerCase()));
+
+  // Smart Coaching
+  const coaching = React.useMemo(() => analyzeDiary(diary), [diary]);
   const savedSpot = hasSaved ? SURF_SPOTS.find(s => s.id === spot) : null;
   const savedGoal = hasSaved ? GOALS.find(g => g.id === goal) : null;
 
@@ -361,7 +364,7 @@ export default function SurfApp() {
             <div onClick={() => setScreen("home")} style={{ cursor: "pointer", display: "flex", alignItems: "center", gap: 10 }}>
               <span style={{ fontSize: 28, animation: "float 3s ease-in-out infinite" }}>🏄</span>
               <div><h1 style={{ fontFamily: "'Playfair Display', serif", fontSize: 22, fontWeight: 900, color: t.text, lineHeight: 1 }}>Soul<span style={{ color: t.accent }}>Surf</span></h1>
-              <span style={{ fontFamily: "'Space Mono', monospace", fontSize: 9, color: t.text3, letterSpacing: "0.15em", textTransform: "uppercase" }}>v3.0 · ride the vibe ☮</span></div>
+              <span style={{ fontFamily: "'Space Mono', monospace", fontSize: 9, color: t.text3, letterSpacing: "0.15em", textTransform: "uppercase" }}>v3.1 · ride the vibe ☮</span></div>
             </div>
             <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
               <button onClick={toggleDark} style={{ background: dm ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.05)", border: "none", borderRadius: "50%", width: 36, height: 36, fontSize: 18, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }} title={dm ? "Light Mode" : "Dark Mode"}>{dm ? "☀️" : "🌙"}</button>
@@ -613,6 +616,65 @@ export default function SurfApp() {
                   )}
                 </div>
               )}
+              {/* Smart Coaching Tips */}
+              {coaching.tips.length > 0 && (
+                <div style={{ background: dm ? "rgba(30,45,61,0.8)" : "linear-gradient(135deg, #E8F5E9, #F1F8E9)", border: `1px solid ${dm ? "rgba(102,187,106,0.2)" : "#C8E6C9"}`, borderRadius: 16, padding: "14px 18px", marginBottom: 20 }}>
+                  <div style={{ fontFamily: "'Space Mono', monospace", fontSize: 10, color: dm ? "#66BB6A" : "#2E7D32", textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 10 }}>🧠 Dein persönlicher Coach</div>
+                  {coaching.patterns.length > 0 && (
+                    <div style={{ fontSize: 12, color: t.text2, marginBottom: 10, lineHeight: 1.5 }}>
+                      Aus deinem Tagebuch: Du erwähnst oft{" "}
+                      {coaching.patterns.map((p, i) => (
+                        <span key={i}>{i > 0 && (i === coaching.patterns.length - 1 ? " und " : ", ")}<strong style={{ color: dm ? "#66BB6A" : "#2E7D32" }}>{p.keyword}</strong></span>
+                      ))}
+                      {" "}– hier sind Tipps für dich:
+                    </div>
+                  )}
+                  {coaching.tips.map((tip, i) => (
+                    <div key={i} style={{ background: dm ? "rgba(255,255,255,0.05)" : "rgba(255,255,255,0.8)", borderRadius: 12, padding: "10px 14px", marginBottom: 8 }}>
+                      <div style={{ display: "flex", alignItems: "flex-start", gap: 8 }}>
+                        <span style={{ fontSize: 18 }}>{tip.icon}</span>
+                        <div style={{ flex: 1 }}>
+                          <div style={{ fontSize: 13, fontWeight: 600, color: t.text, marginBottom: 4, lineHeight: 1.4 }}>{tip.tip}</div>
+                          <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
+                            {tip.lessons.map((lesson, j) => (
+                              <button key={j} onClick={() => setOpenLesson({ ...lesson, type: Object.keys(CONTENT_POOL).find(cat => CONTENT_POOL[cat].includes(lesson)) || "theory" })} style={{ fontSize: 11, padding: "3px 10px", borderRadius: 8, background: dm ? "rgba(102,187,106,0.15)" : "#E8F5E9", border: `1px solid ${dm ? "rgba(102,187,106,0.3)" : "#A5D6A7"}`, color: dm ? "#66BB6A" : "#2E7D32", cursor: "pointer", fontWeight: 600 }}>
+                                {lesson.icon} {lesson.title} →
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+              {/* Smart Coach */}
+              {coaching.tips.length > 0 && (
+                <div style={{ background: dm ? "rgba(30,45,61,0.8)" : "linear-gradient(135deg, #F3E5F5, #EDE7F6)", border: `1px solid ${dm ? "rgba(186,104,200,0.2)" : "#CE93D8"}`, borderRadius: 16, padding: "14px 18px", marginBottom: 20 }}>
+                  <div style={{ fontFamily: "'Space Mono', monospace", fontSize: 10, color: dm ? "#CE93D8" : "#7B1FA2", textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 10 }}>🧠 Dein Surf-Coach</div>
+                  {coaching.patterns.length > 0 && (
+                    <div style={{ background: dm ? "rgba(255,183,77,0.1)" : "rgba(255,183,77,0.15)", borderRadius: 10, padding: "8px 12px", marginBottom: 10, fontSize: 12, color: dm ? "#FFB74D" : "#E65100" }}>
+                      📊 Muster erkannt: {coaching.patterns.map(p => `${p.emoji} ${p.name} (${p.count}x erwähnt)`).join(", ")}
+                    </div>
+                  )}
+                  {coaching.tips.map((tip, i) => (
+                    <div key={i} style={{ display: "flex", gap: 10, padding: "10px 12px", background: dm ? "rgba(255,255,255,0.04)" : "rgba(255,255,255,0.7)", borderRadius: 12, marginBottom: 8 }}>
+                      <span style={{ fontSize: 22 }}>{tip.emoji}</span>
+                      <div style={{ flex: 1 }}>
+                        <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, fontWeight: 600, color: t.text, marginBottom: 2 }}>{tip.tip}</div>
+                        <div style={{ display: "flex", gap: 4, flexWrap: "wrap" }}>
+                          {tip.lessons.slice(0, 2).map((lesson, j) => (
+                            <span key={j} onClick={() => { const found = program?.program?.flatMap(d => d.lessons).find(l => l.title === lesson); if (found) setOpenLesson(found); }} style={{ fontFamily: "'Space Mono', monospace", fontSize: 10, color: dm ? "#CE93D8" : "#7B1FA2", background: dm ? "rgba(186,104,200,0.15)" : "#F3E5F5", padding: "2px 8px", borderRadius: 8, cursor: "pointer" }}>📖 {lesson}</span>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                  {coaching.boardHint && (
+                    <button onClick={() => setShowEquipment(true)} style={{ width: "100%", marginTop: 4, padding: "8px 12px", background: dm ? "rgba(255,183,77,0.1)" : "#FFF8E1", border: "1px dashed #FFB74D", borderRadius: 10, cursor: "pointer", fontSize: 12, fontWeight: 600, color: "#E65100" }}>🏄 Board-Probleme? Öffne den Board-Berater →</button>
+                  )}
+                </div>
+              )}
               {program.spotWarning && (
                 <div style={{ background: dm ? "rgba(255,112,67,0.15)" : "#FFF3E0", border: `1px solid ${dm ? "rgba(255,112,67,0.3)" : "#FFB74D"}`, borderRadius: 14, padding: "12px 16px", marginBottom: 16, display: "flex", alignItems: "center", gap: 10 }}>
                   <span style={{ fontSize: 20 }}>⚠️</span>
@@ -824,6 +886,29 @@ export default function SurfApp() {
                                   </div>
                                 </div>
                               </div>
+                              {/* Instant Coach Tip */}
+                              {(() => {
+                                const entryTips = analyzeEntry(diary[dayData.day]);
+                                if (entryTips.length === 0) return null;
+                                return (
+                                  <div style={{ borderTop: `1px dashed ${dm ? "#2d3f50" : "#E0E0E0"}`, paddingTop: 10, marginTop: 4, marginBottom: 8 }}>
+                                    <div style={{ fontFamily: "'Space Mono', monospace", fontSize: 10, color: dm ? "#CE93D8" : "#7B1FA2", textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 8 }}>💡 Coach-Tipp</div>
+                                    {entryTips.map((tip, i) => (
+                                      <div key={i} style={{ display: "flex", gap: 8, padding: "8px 10px", background: dm ? "rgba(186,104,200,0.08)" : "#F3E5F5", borderRadius: 10, marginBottom: 6, fontSize: 12, color: dm ? "#e8eaed" : "#4A148C" }}>
+                                        <span>{tip.emoji}</span>
+                                        <div>
+                                          <div style={{ fontWeight: 600, marginBottom: 2 }}>{tip.tip}</div>
+                                          <div style={{ display: "flex", gap: 4, flexWrap: "wrap" }}>
+                                            {tip.lessons.slice(0, 2).map((lesson, j) => (
+                                              <span key={j} onClick={() => { const found = program?.program?.flatMap(d => d.lessons).find(l => l.title === lesson); if (found) setOpenLesson(found); }} style={{ fontFamily: "'Space Mono', monospace", fontSize: 9, color: dm ? "#CE93D8" : "#7B1FA2", background: dm ? "rgba(186,104,200,0.15)" : "#EDE7F6", padding: "1px 6px", borderRadius: 6, cursor: "pointer" }}>→ {lesson}</span>
+                                            ))}
+                                          </div>
+                                        </div>
+                                      </div>
+                                    ))}
+                                  </div>
+                                );
+                              })()}
                               {/* A3: Photos */}
                               <div style={{ borderTop: `1px dashed ${dm ? "#2d3f50" : "#E0E0E0"}`, paddingTop: 12, marginTop: 4, marginBottom: 12 }}>
                                 <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 8 }}>
@@ -912,6 +997,12 @@ export default function SurfApp() {
                       <div style={{ fontSize: 13, fontWeight: 600, color: t.text }}>{rec.fins.setup}</div>
                       <div style={{ fontSize: 12, color: t.text2 }}>{rec.fins.reason}</div>
                     </div>
+                    {coaching.boardHint && (
+                      <div style={{ background: dm ? "rgba(102,187,106,0.1)" : "#E8F5E9", borderRadius: 12, padding: "10px 14px", marginTop: 12, border: "1px solid #A5D6A7" }}>
+                        <div style={{ fontFamily: "'Space Mono', monospace", fontSize: 10, color: "#2E7D32", textTransform: "uppercase", marginBottom: 4 }}>🧠 Aus deinem Tagebuch</div>
+                        <div style={{ fontSize: 12, color: dm ? "#e8eaed" : "#2E7D32" }}>{coaching.boardHint}</div>
+                      </div>
+                    )}
                   </>
                 );
               })()}
