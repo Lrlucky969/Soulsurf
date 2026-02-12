@@ -1,429 +1,8 @@
 import { useState, useEffect } from "react";
-
-const SURF_SPOTS = [
-  { id: "bali", name: "Bali, Indonesia", emoji: "🌺", difficulty: "beginner", waveType: "Sanfte Riffwellen", season: "Apr–Okt", water: "28°C", wetsuit: "none", tips: ["Uluwatu und Padang Padang für Fortgeschrittene, Kuta Beach für Anfänger", "Booties empfohlen wegen scharfem Riff", "Beste Zeit: früher Morgen vor dem Onshore-Wind"] },
-  { id: "portugal", name: "Algarve, Portugal", emoji: "🇵🇹", difficulty: "beginner", waveType: "Beachbreaks", season: "Sep–Nov", water: "20°C", wetsuit: "3/2mm", tips: ["Arrifana und Amado sind perfekte Anfänger-Spots", "Neoprenanzug 3/2mm nötig, Wasser ist frisch", "Starke Strömungen möglich – immer zwischen den Flaggen surfen"] },
-  { id: "hawaii", name: "Hawaii, USA", emoji: "🌈", difficulty: "advanced", waveType: "Große Riffwellen", season: "Nov–Feb", water: "25°C", wetsuit: "none", tips: ["Waikiki für Anfänger, North Shore nur für Erfahrene", "Respektiere die Locals – Hawaii hat strenge Lineup-Hierarchie", "Riffschuhe sind Pflicht an vielen Spots"] },
-  { id: "costarica", name: "Costa Rica", emoji: "🦜", difficulty: "beginner", waveType: "Warme Beachbreaks", season: "Dez–Apr", water: "29°C", wetsuit: "none", tips: ["Tamarindo und Nosara sind ideal für Anfänger", "Kein Neopren nötig – Boardshorts reichen", "Achtung Krokodile an Flussmündungen (kein Witz!)"] },
-  { id: "australia", name: "Gold Coast, Australien", emoji: "🦘", difficulty: "intermediate", waveType: "Pointbreaks", season: "Feb–Mai", water: "23°C", wetsuit: "springsuits", tips: ["Snapper Rocks hat weltklasse Pointbreaks", "Stinger Season beachten (Okt–Mai)", "Surf-Kultur ist groß – respektiere die Locals"] },
-  { id: "morocco", name: "Taghazout, Marokko", emoji: "🐪", difficulty: "intermediate", waveType: "Rechte Pointbreaks", season: "Okt–Mär", water: "18°C", wetsuit: "3/2mm", tips: ["Anchor Point ist ein legendärer Rechts-Pointbreak", "3/2mm Neopren empfohlen im Winter", "Günstige Surf-Camps mit Marokkanischem Essen"] },
-  { id: "france", name: "Hossegor, Frankreich", emoji: "🥐", difficulty: "intermediate", waveType: "Kraftvolle Beachbreaks", season: "Sep–Nov", water: "19°C", wetsuit: "4/3mm", tips: ["La Gravière ist einer der besten Beachbreaks Europas", "Wellen können sehr kraftvoll werden – kenne dein Limit", "Herbst hat die besten Swells bei noch warmem Wasser"] },
-  { id: "srilanka", name: "Sri Lanka", emoji: "🐘", difficulty: "beginner", waveType: "Sanfte Pointbreaks", season: "Nov–Apr", water: "28°C", wetsuit: "none", tips: ["Weligama Bay ist perfekt für absolute Anfänger", "Arugam Bay für Fortgeschrittene – langer Rechts-Pointbreak", "Günstigstes Surf-Reiseziel mit leckerem Essen"] },
-  { id: "itacare", name: "Itacaré, Brasilien", emoji: "🇧🇷", difficulty: "intermediate", waveType: "Tropische Beachbreaks", season: "Nov–Mär", water: "27°C", wetsuit: "none", tips: ["Praia da Tiririca ist der Hauptspot – konsistent und spaßig", "Regenwald trifft Meer – einzigartige Atmosphäre", "Achte auf Strömungen bei Ebbe an den Flussmündungen"] },
-  { id: "floripa", name: "Florianópolis, Brasilien", emoji: "🇧🇷", difficulty: "beginner", waveType: "Konstante Beachbreaks", season: "Apr–Sep", water: "21°C", wetsuit: "springsuits", tips: ["Praia Mole und Joaquina sind die beliebtesten Surf-Strände", "Herbst/Winter bringt die besten Süd-Swells", "Lebendige Surf-Szene mit vielen Surfschulen"] },
-  { id: "saquarema", name: "Saquarema, Brasilien", emoji: "🇧🇷", difficulty: "advanced", waveType: "Kraftvoller Beachbreak", season: "Mai–Sep", water: "22°C", wetsuit: "springsuits", tips: ["'Maracanã des Surfens' – Austragungsort von WSL-Events", "Praia de Itaúna hat kraftvolle, hohle Wellen", "Nur für erfahrene Surfer bei großem Swell"] },
-  { id: "canary", name: "Fuerteventura, Kanaren", emoji: "🏝", difficulty: "beginner", waveType: "Vielseitige Riffwellen", season: "Okt–Mär", water: "20°C", wetsuit: "3/2mm", tips: ["Nördliche Küste für Erfahrene, Süden für Anfänger", "Ganzjährig surfbar – Europas Hawaii", "Booties empfohlen wegen vulkanischem Riff"] },
-  { id: "nicaragua", name: "San Juan del Sur, Nicaragua", emoji: "🌋", difficulty: "beginner", waveType: "Warme Beachbreaks", season: "Mär–Nov", water: "28°C", wetsuit: "none", tips: ["Playa Maderas ist der perfekte Lern-Spot", "Offshore-Wind am Morgen fast garantiert", "Noch wenig überlaufen – günstiges Surf-Paradies"] },
-  { id: "maldives", name: "Malediven", emoji: "🐠", difficulty: "intermediate", waveType: "Perfekte Riffwellen", season: "Mär–Okt", water: "29°C", wetsuit: "none", tips: ["Surf-Charter-Boote sind der beste Weg zu den Wellen", "Kristallklares Wasser – du siehst den Riffboden", "Reef Booties sind absolute Pflicht"] },
-  { id: "mentawai", name: "Mentawai, Indonesien", emoji: "🌴", difficulty: "advanced", waveType: "Weltklasse Riffwellen", season: "Apr–Okt", water: "28°C", wetsuit: "none", tips: ["Lance\'s Right und Macaronis sind Weltklasse-Wellen", "Nur per Boot erreichbar – plane Surf-Charter", "Scharfes Riff – Erste-Hilfe-Kit ist Pflicht"] },
-  { id: "jeffreys", name: "Jeffreys Bay, Südafrika", emoji: "🦈", difficulty: "advanced", waveType: "Legendärer Pointbreak", season: "Jun–Sep", water: "17°C", wetsuit: "4/3mm", tips: ["Supertubes ist eine der besten Rechtswellen der Welt", "4/3mm Neopren nötig – das Wasser ist kalt", "Haie sind real – surfe in Gruppen und meide Flussmündungen"] },
-  { id: "ericeira", name: "Ericeira, Portugal", emoji: "🇵🇹", difficulty: "intermediate", waveType: "World Surf Reserve", season: "Sep–Apr", water: "17°C", wetsuit: "4/3mm", tips: ["Ribeira d\'Ilhas ist der bekannteste Spot", "World Surf Reserve – geschützte Küste mit perfekten Wellen", "Nur 45 Min von Lissabon – perfekt für Surf & City"] },
-  { id: "siargao", name: "Siargao, Philippinen", emoji: "🏄", difficulty: "intermediate", waveType: "Cloud 9 Riffwellen", season: "Aug–Nov", water: "28°C", wetsuit: "none", tips: ["Cloud 9 ist weltberühmt – kräftige, hohle Rechtswelle", "Für Anfänger: Jacking Horse oder Stimpy\'s", "Tropenparadies – Palmen, türkises Wasser, entspannte Vibes"] },
-];
-
-const GOALS = [
-  { id: "erste-welle", name: "Erste Welle stehen", emoji: "🌊", level: "beginner" },
-  { id: "grune-wellen", name: "Grüne Wellen surfen", emoji: "🟢", level: "intermediate" },
-  { id: "manover", name: "Erste Manöver lernen", emoji: "🔄", level: "advanced" },
-  { id: "surf-trip", name: "Surf-Trip vorbereiten", emoji: "✈️", level: "beginner" },
-  { id: "fitness", name: "Surf-Fitness aufbauen", emoji: "💪", level: "beginner" },
-  { id: "comeback", name: "Comeback nach Pause", emoji: "🔁", level: "intermediate" },
-];
-
-const BOARD_TYPES = [
-  { id: "none", label: "Noch keins", emoji: "❓", desc: "Ich leihe vor Ort" },
-  { id: "softboard", label: "Softboard", emoji: "🟡", desc: "Schaumstoff, 7-9ft" },
-  { id: "longboard", label: "Longboard", emoji: "🟠", desc: "8-10ft, klassisch" },
-  { id: "funboard", label: "Funboard/Mid", emoji: "🟢", desc: "6'6-7'6ft" },
-  { id: "shortboard", label: "Shortboard", emoji: "🔴", desc: "5'6-6'4ft" },
-  { id: "fish", label: "Fish/Retro", emoji: "🐟", desc: "Breit, kurz, fun" },
-];
-
-const EXPERIENCE_LEVELS = [
-  { id: "zero", label: "Noch nie gesurft", emoji: "🌱" },
-  { id: "few", label: "1-5 Sessions", emoji: "🌿" },
-  { id: "some", label: "6-20 Sessions", emoji: "🌳" },
-  { id: "regular", label: "20+ Sessions", emoji: "🏔" },
-];
-
-const CONTENT_POOL = {
-  equipment: [
-    { title: "Dein erstes Surfboard", icon: "🏄", duration: "10 Min", level: "beginner", phase: "intro", content: "Das richtige Board macht den Unterschied zwischen Spaß und Frust. Anfänger brauchen Volumen und Stabilität.", tips: ["Softboards sind ideal zum Start – sicher und verzeihend", "Mindestens 7ft für Anfänger (8-9ft ideal)", "Mehr Volumen = leichter paddeln = mehr Wellen fangen", "Shortboards unter 6'6 sind für Anfänger nicht geeignet"], keyTerms: ["Volume", "Softboard", "Longboard", "Rails", "Stringer"], articleUrl: "https://tutorials.barefootsurftravel.com/articles/types-of-surfboards/", articleTitle: "📄 Surfboard-Typen – Barefoot Surf" },
-    { title: "Wetsuit & Zubehör", icon: "🧤", duration: "8 Min", level: "beginner", phase: "intro", content: "Je nach Wassertemperatur brauchst du unterschiedliche Neoprenanzüge. Dazu kommen Leash, Wax und optional Booties.", tips: ["Ab 22°C: Boardshorts/Bikini reichen", "18-22°C: Springsuits oder 3/2mm Fullsuit", "Unter 18°C: 4/3mm oder dicker", "Leash immer am hinteren Fuß befestigen", "Wax passend zur Wassertemperatur wählen"], keyTerms: ["Neopren", "Leash", "Wax", "Booties", "3/2mm", "4/3mm"] },
-    { title: "Board-Pflege & Transport", icon: "🔧", duration: "6 Min", level: "beginner", phase: "intro", content: "Ein gut gepflegtes Board hält Jahre. Dings reparieren, richtig lagern und transportieren.", tips: ["Nie in der prallen Sonne liegen lassen", "Kleine Dings sofort mit Solarez reparieren", "Board immer mit Finnen nach oben lagern", "Boardbag für Transport und UV-Schutz"] },
-    { title: "Spot-Check: Worauf achten?", icon: "👀", duration: "10 Min", level: "beginner", phase: "intro", content: "Bevor du ins Wasser gehst: 15 Minuten beobachten. Wo brechen die Wellen? Wo ist der Channel? Wie viele Leute sind im Wasser?", tips: ["Beobachte wo erfahrene Surfer rauspaddeln", "Suche den Channel – dort ist weniger Strömung", "Achte auf Rip Currents (glattes Wasser zwischen Wellen)", "Zähle die Leute im Wasser – zu voll = zu gefährlich"], articleUrl: "https://tutorials.barefootsurftravel.com/articles/how-to-surf-complete-beginners-guide/", articleTitle: "📄 Beginner Guide – Barefoot Surf" },
-  ],
-  warmup: [
-    { title: "Schulter-Mobilität", icon: "🔄", duration: "5 Min", level: "beginner", phase: "any", repeatable: true, content: "Öffne Schultern und Brustwirbelsäule für bessere Paddel-Power.", steps: ["Armkreisen vorwärts: 15x", "Armkreisen rückwärts: 15x", "Cross-Body Shoulder Stretch: 20 Sek/Seite", "Arm-Schwünge (vor/zurück): 15x", "Hände hinter dem Rücken verschränken, Brust raus – 20 Sek"], articleUrl: "https://tutorials.barefootsurftravel.com/articles/5-of-the-best-mobility-exercises-to-improve-your-surf-game-reduce-injuries/", articleTitle: "📄 Mobility Exercises – Barefoot Surf" },
-    { title: "Hüft-Opener & Beine", icon: "🦵", duration: "6 Min", level: "beginner", phase: "any", repeatable: true, content: "Flexible Hüften sind essenziell für den Pop-Up und den Surf-Stance.", steps: ["Tiefe Ausfallschritte: 10x/Seite", "Hüftkreise: 10x jede Richtung", "Knöcheldrehungen: 15x/Fuß", "Kniehebelauf: 20 Sek", "Beinschwünge seitlich: 10x/Seite"] },
-    { title: "Core Activation", icon: "🎯", duration: "5 Min", level: "beginner", phase: "any", repeatable: true, content: "Dein Core ist das Kontrollzentrum auf dem Board.", steps: ["Plank: 30 Sek", "Side Plank: 20 Sek/Seite", "Dead Bug: 10x/Seite", "Bird Dog: 8x/Seite", "Hollow Body Hold: 20 Sek"] },
-    { title: "Pop-Up Drill Warm-Up", icon: "⚡", duration: "5 Min", level: "beginner", phase: "any", repeatable: true, content: "Aktiviere dein Pop-Up Muskelgedächtnis.", steps: ["5x langsam und kontrolliert aufstehen", "5x mit normalem Tempo", "5x so explosiv wie möglich", "Auf korrekte Fußposition achten", "Speed-Round: 10 Pop-Ups so schnell wie möglich"], articleUrl: "https://tutorials.barefootsurftravel.com/articles/what-take-off-technique-is-right-for-you/", articleTitle: "📄 Take-Off Technik – Barefoot Surf" },
-    { title: "Wirbelsäulen-Rotation", icon: "🌀", duration: "5 Min", level: "beginner", phase: "any", repeatable: true, content: "Rotationsfähigkeit für Turns und Manöver.", steps: ["Stehende Drehung: 10x/Seite", "Open Books (Seitlage): 8x/Seite", "Thread the Needle: 8x/Seite", "Cat-Cow: 10x langsam", "Seated Twist: 20 Sek/Seite"] },
-    { title: "Atem & Apnoe-Training", icon: "🌬️", duration: "5 Min", level: "intermediate", phase: "any", repeatable: true, content: "Kontrolliertes Atmen reduziert Panik bei Wipeouts.", steps: ["Box Breathing: 4-4-4-4 Sek (5 Runden)", "Progressive Apnoe: 15/20/25/30 Sek halten", "Wim-Hof-Style: 20x Poweratmung + Halten", "Recovery Breathing: 6 Sek ein, 8 Sek aus", "Entspannungsatmung: 10 tiefe Atemzüge"] },
-    { title: "Beach-Yoga Flow", icon: "🧘", duration: "8 Min", level: "beginner", phase: "any", repeatable: true, content: "Ein kurzer Yoga-Flow kombiniert alle Surf-relevanten Bewegungen.", steps: ["Sonnengruß A: 3x", "Krieger I + II: je 20 Sek/Seite", "Herabschauender Hund → Cobra: 5x Flow", "Taubenhaltung: 30 Sek/Seite", "Kind-Pose: 30 Sek Entspannung"], articleUrl: "https://tutorials.barefootsurftravel.com/articles/5-of-the-best-mobility-exercises-to-improve-your-surf-game-reduce-injuries/", articleTitle: "📄 Surf Mobility – Barefoot Surf" },
-    { title: "Sprungkraft & Explosivität", icon: "💥", duration: "5 Min", level: "intermediate", phase: "any", repeatable: true, content: "Explosive Kraft für schnelle Pop-Ups.", steps: ["Jump Squats: 10x", "Burpees (surf-style): 8x", "Lateral Bounds: 8x/Seite", "Tuck Jumps: 6x", "Broad Jumps: 5x"] },
-    { title: "Balance-Training", icon: "⚖️", duration: "7 Min", level: "beginner", phase: "any", repeatable: true, content: "Gleichgewicht ist der Schlüssel zum Surfen.", steps: ["Einbeinstand: 30 Sek pro Bein", "Einbeinstand: 20 Sek (Augen zu!)", "Surf-Stance auf weichem Sand: 30 Sek", "Einbein-Squats: 8x pro Seite", "Zehenstand gehen: 20 Schritte"] },
-    { title: "Paddel-Power Warm-Up", icon: "💪", duration: "6 Min", level: "intermediate", phase: "any", repeatable: true, content: "Aktiviere Schultern, Lat und Trizeps.", steps: ["Resistance Band Pull-Aparts: 15x", "Prone Y-T-W Raises: 8x je Form", "Swimming auf dem Bauch: 30 Sek", "Push-Up Plus: 10x", "Arm-Haulers: 20x"], articleUrl: "https://tutorials.barefootsurftravel.com/articles/how-to-paddle-on-a-surfboard/", articleTitle: "📄 Paddeltechnik – Barefoot Surf" },
-  ],
-  theory: [
-    { title: "Ozean lesen lernen", icon: "🌊", duration: "15 Min", level: "beginner", phase: "early", content: "Wellen entstehen durch Wind über der Wasseroberfläche. Je länger die Strecke (Fetch) und je stärker der Wind, desto größer die Wellen.", tips: ["Beobachte das Meer 15 Min bevor du reingehst", "Wellen kommen in Sets von 3-7 Wellen", "Ruhige Phasen zwischen Sets nutzen", "Schaumwellen (Whitewash) sind perfekt für Anfänger"], keyTerms: ["Set", "Fetch", "Whitewash", "Lineup", "Impact Zone"], articleUrl: "https://tutorials.barefootsurftravel.com/articles/how-to-read-waves/", articleTitle: "📄 Wellen lesen – Barefoot Surf" },
-    { title: "Surf-Etikette & Vorfahrt", icon: "🤝", duration: "10 Min", level: "beginner", phase: "early", content: "Im Wasser gibt es ungeschriebene Gesetze. Wer dem Peak am nächsten und zuerst auf der Welle steht, hat Vorfahrt.", tips: ["Nie jemandem die Welle droppen", "Beim Rauspaddeln hinter der Brechzone bleiben", "Anfänger: nicht ins Lineup der Locals paddeln", "Lächeln öffnet jedes Lineup"], keyTerms: ["Drop-In", "Snaking", "Lineup", "Peak", "Priority"], articleUrl: "https://tutorials.barefootsurftravel.com/articles/surf-ethics-10-rules-beginner-needs-know/", articleTitle: "📄 10 Surf-Regeln – Barefoot Surf" },
-    { title: "Wellentypen verstehen", icon: "📐", duration: "12 Min", level: "beginner", phase: "early", content: "Beachbreaks brechen über Sand. Reefbreaks über Riff/Fels. Pointbreaks an Landzungen.", tips: ["Beachbreaks ideal für Anfänger", "Reefbreaks: Booties tragen", "Offshore = glatte Wellen, Onshore = unruhig"], keyTerms: ["Beachbreak", "Reefbreak", "Pointbreak", "Offshore", "Onshore"], articleUrl: "https://tutorials.barefootsurftravel.com/articles/how-to-surf-complete-beginners-guide/", articleTitle: "📄 Beginner Guide – Barefoot Surf" },
-    { title: "Sicherheit im Wasser", icon: "⚠️", duration: "15 Min", level: "beginner", phase: "early", content: "Strömungen (Rip Currents) ziehen dich aufs Meer – niemals dagegen anschwimmen!", tips: ["Rip Current: quer zur Strömung schwimmen", "Board nie loslassen – Leash tragen!", "Nie bei Gewitter oder Dunkelheit surfen", "Rifffreundliche Sonnencreme benutzen"], keyTerms: ["Rip Current", "Leash", "Channel", "Shorebreak"], articleUrl: "https://tutorials.barefootsurftravel.com/articles/how-to-surf-complete-beginners-guide/", articleTitle: "📄 Sicherheits-Basics – Barefoot Surf" },
-    { title: "Dein Board kennen", icon: "🏄", duration: "10 Min", level: "beginner", phase: "early", content: "Anfänger brauchen Volumen! Ein Softboard (8-9 Fuß) gibt Stabilität.", tips: ["Starte mit Softboard", "Board mindestens 1 Fuß länger als du", "Ohne Wax rutschst du sofort ab", "Thruster-Setup für Anfänger"], keyTerms: ["Softboard", "Longboard", "Shortboard", "Volume", "Rails"], articleUrl: "https://tutorials.barefootsurftravel.com/articles/types-of-surfboards/", articleTitle: "📄 Surfboard-Typen – Barefoot Surf" },
-    { title: "Gezeiten & Surf-Forecast", icon: "🌙", duration: "15 Min", level: "intermediate", phase: "mid", content: "Bei Ebbe sind Wellen steiler, bei Flut weicher. Apps wie Surfline zeigen alle Daten.", tips: ["Mid-Tide funktioniert am besten", "Periode > 10 Sek = kraftvolle Wellen", "Forecast am Abend vorher checken", "Offshore-Wind am Morgen = bestes Fenster"], keyTerms: ["Tide", "Swell Period", "Swell Direction", "Wind Speed"], articleUrl: "https://tutorials.barefootsurftravel.com/articles/how-to-read-waves/", articleTitle: "📄 Wellen & Gezeiten – Barefoot Surf" },
-    { title: "Surf-Fitness verstehen", icon: "💪", duration: "12 Min", level: "intermediate", phase: "mid", content: "Paddeln trainiert Schultern, Take-Off braucht explosive Kraft, Balance kommt aus der Körpermitte.", tips: ["Schwimmen ist bestes Cross-Training", "Yoga für Balance und Flexibilität", "Schulter-Mobilität täglich dehnen"], keyTerms: ["Paddel-Fitness", "Core-Stability", "Pop-Up Kraft"], articleUrl: "https://tutorials.barefootsurftravel.com/articles/5-of-the-best-mobility-exercises-to-improve-your-surf-game-reduce-injuries/", articleTitle: "📄 5 Mobility Exercises – Barefoot Surf" },
-    { title: "Wind & Wetter lesen", icon: "🌬️", duration: "10 Min", level: "intermediate", phase: "mid", content: "Wind ist der wichtigste Faktor. Offshore-Wind glättet die Wellen. Onshore macht sie unruhig.", tips: ["Morgenstunden haben oft die besten Bedingungen", "Sideshore-Wind kann auch gut sein", "Wetterumschwünge bringen die besten Swells"], keyTerms: ["Offshore", "Onshore", "Sideshore", "Glasig", "Choppy"], articleUrl: "https://tutorials.barefootsurftravel.com/articles/how-to-read-waves/", articleTitle: "📄 Wind & Wellen lesen – Barefoot Surf" },
-    { title: "Board-Shapes & Finnen", icon: "🔧", duration: "12 Min", level: "intermediate", phase: "mid", content: "Jedes Board-Shape surft anders. Mehr Rocker = wendiger, weniger Rocker = schneller.", tips: ["Single Fin = Glide, Thruster = Kontrolle", "Fish-Shape: schnell in kleinen Wellen", "Gun: für große Wellen über 2m"], keyTerms: ["Rocker", "Concave", "Fish", "Gun", "Quad"], videoUrl: "https://www.youtube.com/embed/OHpG_rNj8eQ", articleUrl: "https://tutorials.barefootsurftravel.com/articles/types-of-surfboards/", articleTitle: "📄 Board-Shapes – Barefoot Surf" },
-    { title: "Surf-Psychologie & Fear", icon: "🧠", duration: "10 Min", level: "advanced", phase: "late", content: "Angst im Wasser ist normal. Der Schlüssel ist, zwischen gesunder Vorsicht und limitierender Angst zu unterscheiden.", tips: ["Atme bewusst wenn du Angst spürst", "Steigere dich schrittweise", "Visualisiere erfolgreiche Rides", "Surfe mit Buddies"], keyTerms: ["Commitment", "Fear Management", "Visualization"], articleUrl: "https://tutorials.barefootsurftravel.com/articles/how-to-surf-complete-beginners-guide/", articleTitle: "📄 Mindset & Tipps – Barefoot Surf" },
-    { title: "Strömungen & Channels", icon: "🔀", duration: "12 Min", level: "beginner", phase: "mid", content: "Strömungen können gefährlich sein, aber auch nützlich: Erfahrene Surfer nutzen Channels zum Rauspaddeln.", tips: ["Channels sind tiefere Bereiche ohne Wellen", "Rip Currents am glatten, dunklen Wasser erkennen", "NIE gegen eine Strömung schwimmen", "Channels beobachten bevor du reingehst"] },
-    { title: "Surf-Kultur & Geschichte", icon: "🏛", duration: "10 Min", level: "beginner", phase: "mid", content: "Surfen hat seinen Ursprung in Polynesien und Hawaii. Duke Kahanamoku brachte es in die Welt.", tips: ["Duke Kahanamoku = Vater des modernen Surfens", "Surfen wurde 2021 erstmals olympisch", "Respekt vor der Kultur ist Teil des Sports", "Lokale Surf-Szenen haben eigene Traditionen"] },
-    { title: "Wave Positioning", icon: "📍", duration: "12 Min", level: "intermediate", phase: "mid", content: "Die richtige Position im Lineup entscheidet ob du Wellen fängst oder nicht.", tips: ["Nutze Landmarks am Strand", "Triangulation: 2 Punkte am Ufer peilen", "Sitze leicht hinter dem Peak", "Beobachte wo die Locals sitzen"], articleUrl: "https://tutorials.barefootsurftravel.com/articles/positioning-for-waves/", articleTitle: "📄 Positioning – Barefoot Surf" },
-    { title: "Speed & Pump Theorie", icon: "🚀", duration: "10 Min", level: "advanced", phase: "late", content: "Speed ist die Grundlage aller Manöver. Pumping nutzt die Wellenenergie.", tips: ["Pumpen = Gewicht verlagern in der Powerpocket", "Vorderer Fuß = Beschleunigung", "Speed vor jedem Turn aufbauen", "Beobachte wie Pros die Wellenwand nutzen"] },
-    { title: "Surfboard Volume & Sizing", icon: "📏", duration: "10 Min", level: "intermediate", phase: "mid", content: "Volume in Litern bestimmt wie viel das Board dich trägt.", tips: ["Anfänger: 100% Körpergewicht in Litern", "Intermediate: 60-80%", "Advanced: 35-50%", "Volume-Rechner von Channel Islands nutzen"], articleUrl: "https://tutorials.barefootsurftravel.com/articles/surfboard-volume/", articleTitle: "📄 Surfboard Volume – Barefoot Surf" },
-    { title: "Surf-Apps & Forecast lesen", icon: "📱", duration: "10 Min", level: "intermediate", phase: "mid", content: "Surfline, Windguru, Magic Seaweed – lerne die besten Tools.", tips: ["Surfline zeigt Cam-Livestreams", "Windguru ist kostenlos und detailliert", "Wellenhöhe in Fuß ≠ Gesichtshöhe", "Swell-Richtung muss zum Spot passen"] },
-  ],
-  practice: [
-    { title: "Pop-Up an Land üben", icon: "🤸", duration: "30 Min", level: "beginner", phase: "early", repeatable: true, content: "Der Pop-Up ist DIE fundamentale Bewegung. Übe ihn 50x am Tag.", steps: ["Flach auf den Bauch, Hände neben der Brust", "Explosiv hochdrücken – NICHT auf die Knie!", "Hinterer Fuß zuerst aufs Board (quer)", "Vorderfuß zwischen die Hände", "Knie gebeugt, Blick nach vorne", "50x wiederholen!"], proTip: "Filme dich selbst! Die meisten denken sie machen es richtig, bis sie das Video sehen.", videoUrl: "https://www.youtube.com/embed/dBmHlpliXfk", articleUrl: "https://tutorials.barefootsurftravel.com/articles/how-to-do-a-take-off", articleTitle: "📄 Pop-Up Technik – Barefoot Surf" },
-    { title: "Paddeltechnik perfektionieren", icon: "💧", duration: "45 Min", level: "beginner", phase: "early", repeatable: true, content: "80% deiner Zeit verbringst du mit Paddeln.", steps: ["Position: Nase ~5cm über Wasser", "Arme tief eintauchen", "Fingerspitzen zusammen", "Kurze, kraftvolle Züge", "Blick nach vorne", "Beine zusammen und still!"], proTip: "20 Min nur paddeln ohne Wellen – baut Ausdauer.", videoUrl: "https://www.youtube.com/embed/XCaiQYVEut4", articleUrl: "https://tutorials.barefootsurftravel.com/articles/how-to-paddle-on-a-surfboard/", articleTitle: "📄 Paddeltechnik – Barefoot Surf" },
-    { title: "Whitewash-Wellen reiten", icon: "🫧", duration: "60 Min", level: "beginner", phase: "early", repeatable: true, content: "Gebrochene Schaumwellen sind perfekt zum Üben.", steps: ["Hüfttief im Wasser stehen", "Schaumwelle → zum Strand drehen", "Aufs Board, 3-4 kräftige Züge", "Welle schiebt → Pop-Up!", "Zum Strand gleiten", "Ziel: 10 Wellen stehen"], proTip: "2-3 Paddelzüge BEVOR du aufstehst. Speed = Stabilität!", articleUrl: "https://tutorials.barefootsurftravel.com/articles/how-to-surf-complete-beginners-guide/", articleTitle: "📄 Wellen fangen – Barefoot Surf" },
-    { title: "Turtle Roll & Duck Dive", icon: "🐢", duration: "30 Min", level: "beginner", phase: "early", content: "Um zu den guten Wellen zu kommen, musst du durch die Brechzone.", steps: ["Turtle Roll: Rails fest greifen", "Mit dem Board umdrehen", "Festhalten während Welle rollt", "Zurückdrehen und weiterpaddeln", "Duck Dive: Nose runterdrücken", "Knie drückt Tail nach"], proTip: "Starte den Turtle Roll 2m VOR der Welle!", articleUrl: "https://tutorials.barefootsurftravel.com/articles/paddle-turtle-roll", articleTitle: "📄 Turtle Roll – Barefoot Surf" },
-    { title: "Stance & Gewichtsverlagerung", icon: "⚖️", duration: "30 Min", level: "beginner", phase: "early", content: "Dein Stance bestimmt alles: Speed, Kontrolle, Turns.", steps: ["Füße schulterbreit, leicht angewinkelt", "Hinterer Fuß über den Finnen", "Vorderer Fuß auf Höhe des Brustbeins", "Knie immer gebeugt", "Arme locker seitlich", "Teste: Gewicht vorne = schneller"], proTip: "Stelle dir vor du stehst auf einem Skateboard!" },
-    { title: "Grüne Wellen anpaddeln", icon: "🟢", duration: "60 Min", level: "intermediate", phase: "mid", repeatable: true, content: "Ungebrochene Wellen nehmen – positioniere dich im Lineup und paddle früh und hart.", steps: ["Vor der Brechzone positionieren", "Mittlere Welle im Set wählen", "HART paddeln, 6-8 Züge", "Moment des 'Catch' spüren", "Pop-Up und schräg abfahren"], proTip: "Paddle früher und härter als du denkst – der #1 Anfängerfehler!", articleUrl: "https://tutorials.barefootsurftravel.com/articles/positioning-for-waves/", articleTitle: "📄 Positioning – Barefoot Surf" },
-    { title: "Bottom Turn Basics", icon: "↩️", duration: "45 Min", level: "intermediate", phase: "mid", content: "Das Fundament aller Manöver.", steps: ["Schräg die Welle hinunter", "Gewicht auf Fersen/Zehen", "Blick in Drehrichtung", "Knie tief, Schwerpunkt niedrig", "Speed mitnehmen", "Zurück die Wand hoch"], proTip: "Schau IMMER dahin wo du hin willst, nie aufs Board.", articleUrl: "https://tutorials.barefootsurftravel.com/articles/bottom-turn/", articleTitle: "📄 Bottom Turn – Barefoot Surf" },
-    { title: "Linie halten & Trimmen", icon: "〰️", duration: "40 Min", level: "intermediate", phase: "mid", content: "Auf der Welle bleiben: die richtige Linie finden.", steps: ["Schulter anvisieren", "Gewicht vorne = Speed", "Gewicht hinten = bremsen", "Powerpocket finden", "Kleine Gewichtsverlagerungen", "Arme zur Balance"], proTip: "Die Powerpocket ist direkt unter der brechenden Lippe.", articleUrl: "https://tutorials.barefootsurftravel.com/articles/how-to-surf-down-the-line/", articleTitle: "📄 Down the Line – Barefoot Surf" },
-    { title: "Angled Take-Off", icon: "↗️", duration: "45 Min", level: "intermediate", phase: "mid", content: "Take-Off schräg zur Welle – direkt die Schulter entlang fahren.", steps: ["Welle anpaddeln", "Schultern leicht drehen beim Pop-Up", "Vorderen Fuß in Fahrtrichtung", "Blick die Welle entlang", "Gewicht auf Toeside/Heelside", "Direkt auf der Welle fahren"], proTip: "Der angled Take-Off ist DER Gamechanger vom Anfänger zum Intermediate!" },
-    { title: "Lineup Navigation", icon: "🧭", duration: "45 Min", level: "intermediate", phase: "mid", content: "Sicher durch die Brechzone und Position im Lineup finden.", steps: ["Channel identifizieren", "Zwischen Sets rauspaddeln", "Position hinter dem Peak", "Landmarks nutzen", "Priority-Regeln beachten", "Bei Unsicherheit: beobachten"], proTip: "Die besten Surfer sind die besten Beobachter." },
-    { title: "Cutback & Top Turn", icon: "🔄", duration: "60 Min", level: "advanced", phase: "late", content: "Cutback bringt dich zurück zur Wellenkraft.", steps: ["Speed durch 2-3 Pumps", "Am Kamm: Gewicht hinten", "Schultern und Kopf drehen", "Vorderer Arm zeigt Richtung", "Board folgt", "Gewicht zentrieren"], proTip: "Keine Speed = kein Turn. Immer erst Speed aufbauen!", articleUrl: "https://tutorials.barefootsurftravel.com/articles/cutback/", articleTitle: "📄 Cutback Technik – Barefoot Surf" },
-    { title: "Speed Pumping", icon: "🚀", duration: "40 Min", level: "advanced", phase: "late", repeatable: true, content: "Generiere Speed durch rhythmisches Pumpen.", steps: ["Gewicht von vorne nach hinten", "Board auf und ab fahren", "Knie als Stoßdämpfer", "In der Powerpocket bleiben", "Arme für Momentum", "3-4 Pumps → Manöver"], proTip: "Wie Skateboard-Pumpen in einer Halfpipe!" },
-    { title: "Surf-Meditation & Flow", icon: "🧘", duration: "20 Min", level: "beginner", phase: "any", content: "Die besten Wellen fängst du wenn du aufhörst zu denken.", steps: ["Auf dem Board sitzen", "Augen schließen, Dünung spüren", "10x atmen: 4 Sek ein, 6 Sek aus", "Augen öffnen, Horizont beobachten", "Gedanken weiterziehen lassen", "Nächste Welle fühlen"], proTip: "Stress = steifer Körper = schlechtes Surfen. Relax!" },
-    { title: "Wipeout Recovery", icon: "🌪️", duration: "30 Min", level: "intermediate", phase: "mid", content: "Wipeouts gehören dazu. Wer sie meistert, surft mutiger.", steps: ["Arme schützend über den Kopf", "Fötus-Position unter Wasser", "Warten bis Turbulenz nachlässt", "Luftblasen zeigen nach oben", "Board per Leash ziehen", "Richtung checken"], proTip: "30 Sekunden Luft anhalten reichen für 95% aller Wipeouts.", videoUrl: "https://www.youtube.com/embed/MyJJedytKR4" },
-  ]
-};
-
-function generateProgram(numDays, goalId, spotId, equipment) {
-  const goal = GOALS.find(g => g.id === goalId);
-  const spot = SURF_SPOTS.find(s => s.id === spotId);
-  const days = parseInt(numDays);
-  const experience = equipment?.experience || "zero";
-
-  // Experience-based theory/practice ratio
-  const EXP_RATIOS = { zero: { t: 0.6, p: 0.4 }, few: { t: 0.5, p: 0.5 }, some: { t: 0.4, p: 0.6 }, regular: { t: 0.2, p: 0.8 } };
-  const ratio = EXP_RATIOS[experience] || EXP_RATIOS.zero;
-
-  // Hard-skip titles by experience level
-  const HARD_SKIPS_REGULAR = [
-    "Dein erstes Surfboard", "Wetsuit & Zubehör", "Turtle Roll & Duck Dive",
-    "Dein Board kennen", "Whitewash-Wellen reiten", "Stance & Gewichtsverlagerung"
-  ];
-  const HARD_SKIPS_SOME = [
-    "Dein erstes Surfboard",
-    ...(goalId !== "erste-welle" ? ["Whitewash-Wellen reiten"] : [])
-  ];
-  const skipTitles = new Set(
-    experience === "regular" ? HARD_SKIPS_REGULAR :
-    experience === "some" ? HARD_SKIPS_SOME : []
-  );
-  // Spot-based: skip wetsuit lesson if no wetsuit needed
-  if (spot?.wetsuit === "none") skipTitles.add("Wetsuit & Zubehör");
-  const skipFilter = (item) => !skipTitles.has(item.title);
-
-  let levels = ["beginner"];
-  if (["intermediate","advanced","expert"].includes(goal?.level) || experience === "some" || experience === "regular") levels.push("intermediate");
-  if (["advanced","expert"].includes(goal?.level) || experience === "regular") levels.push("advanced");
-
-  const warmups = CONTENT_POOL.warmup.filter(w => levels.includes(w.level));
-  const theories = CONTENT_POOL.theory.filter(t => levels.includes(t.level)).filter(skipFilter);
-  const practices = CONTENT_POOL.practice.filter(p => levels.includes(p.level)).filter(skipFilter);
-  const equipmentLessons = CONTENT_POOL.equipment.filter(skipFilter);
-
-  const earlyTheory = theories.filter(t => t.phase === "early");
-  const midTheory = theories.filter(t => t.phase === "mid");
-  const lateTheory = theories.filter(t => t.phase === "late");
-  const earlyPractice = practices.filter(p => p.phase === "early");
-  const midPractice = practices.filter(p => p.phase === "mid");
-  const latePractice = practices.filter(p => p.phase === "late");
-  const anyPractice = practices.filter(p => p.phase === "any");
-
-  const usedTheory = new Set();
-  const usedPractice = new Set();
-
-  // Seeded RNG for consistent but varied programs per config
-  let seed = 0;
-  for (const ch of `${goalId}-${spotId}-${days}-${experience}`) seed = ((seed << 5) - seed + ch.charCodeAt(0)) | 0;
-  seed = Math.abs(seed);
-  function seededRandom() { seed = (seed * 16807 + 0) % 2147483647; return (seed - 1) / 2147483646; }
-  function seededShuffle(arr) { const a = [...arr]; for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(seededRandom() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; }
-
-  function pickTheory(dayNum) {
-    const progress = dayNum / days;
-    let pool;
-    if (progress <= 0.3) pool = [...earlyTheory, ...midTheory];
-    else if (progress <= 0.7) pool = [...midTheory, ...lateTheory, ...earlyTheory];
-    else pool = [...lateTheory, ...midTheory];
-    let unused = seededShuffle(pool.filter(t => !usedTheory.has(t.title)));
-    // Spot-based prioritization: push relevant lessons to front for early days
-    if (progress <= 0.3 && spot) {
-      const wt = (spot.waveType || "").toLowerCase();
-      const priorityTitles = [];
-      if (wt.includes("beachbreak")) priorityTitles.push("Strömungen & Channels", "Sicherheit im Wasser");
-      if (wt.includes("pointbreak")) priorityTitles.push("Surf-Etikette & Vorfahrt", "Wave Positioning");
-      if (wt.includes("riff") || wt.includes("reef")) priorityTitles.push("Sicherheit im Wasser", "Wellentypen verstehen");
-      if (priorityTitles.length > 0) {
-        const priority = unused.filter(t => priorityTitles.includes(t.title));
-        const rest = unused.filter(t => !priorityTitles.includes(t.title));
-        unused = [...priority, ...rest];
-      }
-    }
-    if (unused.length > 0) { const pick = unused[0]; usedTheory.add(pick.title); return pick; }
-    return null;
-  }
-
-  function pickPractice(dayNum) {
-    const progress = dayNum / days;
-    let pool;
-    if (progress <= 0.3) pool = [...earlyPractice, ...anyPractice];
-    else if (progress <= 0.7) pool = [...midPractice, ...earlyPractice, ...anyPractice];
-    else pool = [...latePractice, ...midPractice, ...anyPractice];
-    const unused = seededShuffle(pool.filter(p => !usedPractice.has(p.title)));
-    if (unused.length > 0) { const pick = unused[0]; if (!pick.repeatable) usedPractice.add(pick.title); return pick; }
-    const repeatable = pool.filter(p => p.repeatable);
-    if (repeatable.length > 0) return repeatable[Math.floor(seededRandom() * repeatable.length)];
-    return null;
-  }
-
-  const program = [];
-  let wIdx = 0;
-
-  for (let d = 1; d <= days; d++) {
-    const dayLessons = [];
-    const dayId = `d${d}`;
-
-    if (d === 1) {
-      const eqToAdd = [];
-      if (!equipment || equipment.experience === "zero" || equipment.experience === "few") {
-        // Add available equipment lessons (already filtered by skipFilter)
-        const eqFirst = equipmentLessons.find(e => e.title === "Dein erstes Surfboard");
-        const eqWetsuit = equipmentLessons.find(e => e.title === "Wetsuit & Zubehör");
-        const eqSpotCheck = equipmentLessons.find(e => e.title === "Spot-Check: Worauf achten?");
-        if (eqFirst) eqToAdd.push(eqFirst);
-        if (eqWetsuit) eqToAdd.push(eqWetsuit);
-        if (eqSpotCheck) eqToAdd.push(eqSpotCheck);
-      } else {
-        // some/regular: only board-pflege and spot-check (minus skipped)
-        const eqPflege = equipmentLessons.find(e => e.title === "Board-Pflege & Transport");
-        const eqSpotCheck = equipmentLessons.find(e => e.title === "Spot-Check: Worauf achten?");
-        if (eqPflege) eqToAdd.push(eqPflege);
-        if (eqSpotCheck) eqToAdd.push(eqSpotCheck);
-      }
-      // For 4/3mm spots, wetsuit lesson goes first and prominently
-      if (spot?.wetsuit === "4/3mm") {
-        const eqWetsuit = equipmentLessons.find(e => e.title === "Wetsuit & Zubehör");
-        if (eqWetsuit && !eqToAdd.some(e => e.title === "Wetsuit & Zubehör")) {
-          eqToAdd.unshift(eqWetsuit);
-        } else if (eqWetsuit) {
-          // Move to front if already in list
-          const idx = eqToAdd.findIndex(e => e.title === "Wetsuit & Zubehör");
-          if (idx > 0) { eqToAdd.splice(idx, 1); eqToAdd.unshift(eqWetsuit); }
-        }
-      }
-      eqToAdd.forEach((eq, i) => {
-        dayLessons.push({ ...eq, id: `${dayId}-eq${i}`, type: "equipment" });
-      });
-    }
-
-    if (warmups.length > 0) {
-      dayLessons.push({ ...warmups[wIdx % warmups.length], id: `${dayId}-w`, type: "warmup" });
-      wIdx++;
-    }
-
-    const theory = pickTheory(d);
-    const practice1 = pickPractice(d);
-
-    // Experience-based weighting: decide if this day gets theory or extra practice
-    const theoryRoll = seededRandom();
-    if (theoryRoll < ratio.t && theory) {
-      dayLessons.push({ ...theory, id: `${dayId}-t`, type: "theory" });
-      if (practice1) dayLessons.push({ ...practice1, id: `${dayId}-p1`, type: "practice" });
-    } else {
-      // Skip theory this day, add practice instead (more practice-heavy)
-      if (practice1) dayLessons.push({ ...practice1, id: `${dayId}-p1`, type: "practice" });
-      const extraPractice = pickPractice(d);
-      if (extraPractice && extraPractice.title !== practice1?.title) {
-        dayLessons.push({ ...extraPractice, id: `${dayId}-p-extra`, type: "practice" });
-      } else if (theory) {
-        // Fallback: add theory if no extra practice available
-        dayLessons.push({ ...theory, id: `${dayId}-t`, type: "theory" });
-      }
-    }
-
-    if (days >= 7 && d % 2 === 0) {
-      const practice2 = pickPractice(d);
-      if (practice2 && practice2.title !== practice1?.title) {
-        dayLessons.push({ ...practice2, id: `${dayId}-p2`, type: "practice" });
-      }
-    }
-
-    if (d === days) {
-      const meditation = CONTENT_POOL.practice.find(p => p.title.includes("Meditation"));
-      if (meditation && !dayLessons.some(l => l.title.includes("Meditation"))) {
-        dayLessons.push({ ...meditation, id: `${dayId}-med`, type: "practice" });
-      }
-    }
-
-    program.push({ day: d, lessons: dayLessons, focus: getDailyFocus(d, days, experience, spot) });
-  }
-
-  // Spot difficulty warning
-  const spotWarning = spot?.difficulty === "advanced"
-    ? `⚠️ ${spot.name} ist ein anspruchsvoller Spot. Respektiere den Ozean und kenne dein Limit.`
-    : null;
-
-  // Spot-specific extra tips based on wave type
-  const spotHints = [];
-  const wt = (spot?.waveType || "").toLowerCase();
-  if (wt.includes("riff") || wt.includes("reef")) {
-    spotHints.push("🪸 Riff-Spot: Trage Booties zum Schutz vor scharfem Riff. Checke die Tiefe bei Ebbe!");
-  }
-  if (wt.includes("beachbreak")) {
-    spotHints.push("🌊 Beachbreak: Achte besonders auf Strömungen (Rip Currents) – sie ändern sich mit den Sandbänken.");
-  }
-  if (wt.includes("pointbreak")) {
-    spotHints.push("🧭 Pointbreak: Respektiere die Lineup-Hierarchie. Paddle nicht vor Locals in die Welle.");
-  }
-
-  return { program, goal, spot, spotWarning, spotHints };
-}
-
-// Daily focus line based on experience + spot
-function getDailyFocus(dayNum, totalDays, experience, spot) {
-  const progress = dayNum / totalDays;
-  const wt = (spot?.waveType || "").toLowerCase();
-  const isReef = wt.includes("riff") || wt.includes("reef");
-  const isBeach = wt.includes("beachbreak");
-  const isPoint = wt.includes("pointbreak");
-
-  if (experience === "zero") {
-    if (dayNum === 1) return "Sicherheit: Ozean beobachten & Equipment kennenlernen";
-    if (isBeach && progress <= 0.3) return "Sicherheit: Strömungen erkennen";
-    if (isReef && progress <= 0.3) return "Reef Awareness: Tiefe & Booties Check";
-    if (progress <= 0.3) return "Board-Kontrolle & Whitewash-Wellen";
-    if (progress <= 0.7) return "Pop-Up festigen & erste Wellenritte";
-    return "Selbstständig Wellen fangen";
-  }
-  if (experience === "few") {
-    if (isReef) return progress <= 0.5 ? "Reef Awareness & Booties Check" : "Sicheres Paddeln über Riff";
-    if (isPoint) return progress <= 0.5 ? "Lineup-Positioning am Pointbreak" : "Wellen lesen & Timing";
-    if (progress <= 0.3) return "Paddle-Power & Pop-Up Konsistenz";
-    if (progress <= 0.7) return "Grüne Wellen anpaddeln";
-    return "Wellenauswahl & erste Rides";
-  }
-  if (experience === "some") {
-    if (isPoint) return progress <= 0.5 ? "Positioning im Lineup" : "Linie halten & Trimmen";
-    if (isReef) return progress <= 0.5 ? "Reef Navigation & Takeoff Timing" : "Bottom Turn am Reef";
-    if (progress <= 0.4) return "Green Wave Commitment";
-    if (progress <= 0.7) return "Bottom Turn & Linie";
-    return "Speed & Flow auf der Welle";
-  }
-  // regular
-  if (isPoint) return progress <= 0.5 ? "Speed Generation am Pointbreak" : "Cutback & Reentry";
-  if (isReef) return progress <= 0.5 ? "Barrel Approach & Positioning" : "Commitment in hohlen Wellen";
-  if (progress <= 0.4) return "Speed & Commitment";
-  if (progress <= 0.7) return "Manöver-Training: Cutback & Top Turn";
-  return "Flow-State: Alles zusammen bringen";
-}
-
-const VideoEmbed = ({ url }) => {
-  if (!url) return null;
-  return (
-    <div style={{ margin: "16px 0", borderRadius: 16, overflow: "hidden", background: "#111", position: "relative", paddingBottom: "56.25%", height: 0 }}>
-      <iframe src={`${url}?rel=0&modestbranding=1`} title="Tutorial Video" frameBorder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowFullScreen style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "100%", border: "none" }} />
-    </div>
-  );
-};
-
-const WaveBackground = () => (
-  <div style={{ position: "fixed", inset: 0, zIndex: 0, overflow: "hidden", pointerEvents: "none" }}>
-    <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: 200, background: "linear-gradient(0deg, rgba(255,183,77,0.15) 0%, transparent 100%)" }} />
-    <svg style={{ position: "absolute", bottom: -5, left: 0, width: "200%", height: 80 }} viewBox="0 0 1440 80">
-      <path d="M0,40 C180,80 360,0 540,40 C720,80 900,0 1080,40 C1260,80 1440,0 1620,40 L1620,80 L0,80 Z" fill="rgba(0,150,136,0.08)">
-        <animateTransform attributeName="transform" type="translate" values="0,0;-720,0" dur="12s" repeatCount="indefinite" />
-      </path>
-    </svg>
-  </div>
-);
-
-const LessonCard = ({ lesson, index, onOpen, dm }) => {
-  const colors = {
-    theory: { bg: dm ? "linear-gradient(135deg, #2d2510, #2d2010)" : "linear-gradient(135deg, #FFF8E1, #FFF3E0)", border: "#FFB74D", tag: dm ? "#FFB74D" : "#E65100", tagBg: dm ? "rgba(255,183,77,0.15)" : "#FFF3E0", label: "Theorie" },
-    practice: { bg: dm ? "linear-gradient(135deg, #0d2520, #0d2a25)" : "linear-gradient(135deg, #E0F2F1, #E0F7FA)", border: "#4DB6AC", tag: dm ? "#4DB6AC" : "#004D40", tagBg: dm ? "rgba(77,182,172,0.15)" : "#E0F2F1", label: "Praxis" },
-    warmup: { bg: dm ? "linear-gradient(135deg, #2d1520, #2d1025)" : "linear-gradient(135deg, #FCE4EC, #F3E5F5)", border: "#F06292", tag: dm ? "#F06292" : "#880E4F", tagBg: dm ? "rgba(240,98,146,0.15)" : "#FCE4EC", label: "Warm-Up" },
-    equipment: { bg: dm ? "linear-gradient(135deg, #1a1d2d, #151a2d)" : "linear-gradient(135deg, #E8EAF6, #E3F2FD)", border: "#7986CB", tag: dm ? "#7986CB" : "#283593", tagBg: dm ? "rgba(121,134,203,0.15)" : "#E8EAF6", label: "Equipment" }
-  };
-  const c = colors[lesson.type] || colors.theory;
-  return (
-    <div onClick={() => onOpen(lesson)} style={{ background: c.bg, border: `2px solid ${c.border}22`, borderRadius: 16, padding: "18px 20px", cursor: "pointer", transition: "all 0.3s ease", animationDelay: `${index * 60}ms`, animation: "slideUp 0.5s ease forwards", opacity: 0 }}
-      onMouseEnter={e => { e.currentTarget.style.transform = "translateY(-3px)"; e.currentTarget.style.boxShadow = `0 8px 24px ${c.border}33`; }}
-      onMouseLeave={e => { e.currentTarget.style.transform = "none"; e.currentTarget.style.boxShadow = "none"; }}
-    >
-      <div style={{ display: "flex", alignItems: "flex-start", gap: 12 }}>
-        <div style={{ fontSize: 28 }}>{lesson.icon}</div>
-        <div style={{ flex: 1 }}>
-          <div style={{ display: "flex", gap: 6, marginBottom: 5, flexWrap: "wrap" }}>
-            <span style={{ fontSize: 10, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", color: c.tag, background: c.tagBg, padding: "2px 8px", borderRadius: 20, fontFamily: "'Space Mono', monospace" }}>{c.label}</span>
-            <span style={{ fontSize: 10, fontWeight: 600, color: "#78909C", background: "#ECEFF1", padding: "2px 8px", borderRadius: 20, fontFamily: "'Space Mono', monospace" }}>{lesson.duration}</span>
-            {lesson.videoUrl && <span style={{ fontSize: 10, fontWeight: 600, color: "#C62828", background: "#FFEBEE", padding: "2px 8px", borderRadius: 20, fontFamily: "'Space Mono', monospace" }}>▶ Video</span>}
-            {lesson.articleUrl && <span style={{ fontSize: 10, fontWeight: 600, color: "#1565C0", background: "#E3F2FD", padding: "2px 8px", borderRadius: 20, fontFamily: "'Space Mono', monospace" }}>📄 Artikel</span>}
-          </div>
-          <h3 style={{ fontFamily: "'Playfair Display', serif", fontSize: 17, fontWeight: 700, color: dm ? '#e8eaed' : '#263238', margin: 0, lineHeight: 1.3 }}>{lesson.title}</h3>
-          <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, color: dm ? '#9aa0a6' : '#546E7A', margin: "6px 0 0", lineHeight: 1.5, display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{lesson.content}</p>
-        </div>
-        <div style={{ fontSize: 18, color: c.border, marginTop: 2 }}>→</div>
-      </div>
-    </div>
-  );
-};
-
-const LessonModal = ({ lesson, onClose, dm }) => {
-  if (!lesson) return null;
-  const tc = { theory: "#E65100", practice: "#004D40", warmup: "#880E4F", equipment: "#283593" };
-  const tl = { theory: "📖 Theorie", practice: "🏄 Praxis", warmup: "🔥 Warm-Up", equipment: "🎒 Equipment" };
-  const tb = { theory: "#FFF3E0", practice: "#E0F2F1", warmup: "#FCE4EC", equipment: "#E8EAF6" };
-  const sBg = { theory: "#FFF8E1", practice: "#E0F2F1", warmup: "#FCE4EC", equipment: "#E8EAF6" };
-  const sC = { theory: "#4E342E", practice: "#1B5E20", warmup: "#880E4F", equipment: "#1A237E" };
-  const sB = { theory: "#FFB74D", practice: "#4DB6AC", warmup: "#F06292", equipment: "#7986CB" };
-  return (
-    <div onClick={onClose} style={{ position: "fixed", inset: 0, zIndex: 1000, background: "rgba(0,0,0,0.5)", backdropFilter: "blur(8px)", display: "flex", alignItems: "center", justifyContent: "center", padding: 16, animation: "fadeIn 0.3s ease" }}>
-      <div onClick={e => e.stopPropagation()} style={{ background: dm ? "#1a2332" : "#FFFDF7", borderRadius: 24, maxWidth: 620, width: "100%", maxHeight: "85vh", overflow: "auto", padding: "28px 24px", boxShadow: "0 25px 60px rgba(0,0,0,0.3)", animation: "slideUp 0.4s ease" }}>
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
-          <span style={{ fontSize: 44 }}>{lesson.icon}</span>
-          <button onClick={onClose} style={{ background: dm ? "rgba(255,255,255,0.1)" : "#F5F5F5", border: "none", borderRadius: "50%", width: 36, height: 36, fontSize: 18, cursor: "pointer", color: dm ? "#9aa0a6" : "#546E7A", display: "flex", alignItems: "center", justifyContent: "center" }}>✕</button>
-        </div>
-        <span style={{ fontSize: 11, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", color: tc[lesson.type], background: tb[lesson.type], padding: "4px 12px", borderRadius: 20, fontFamily: "'Space Mono', monospace" }}>{tl[lesson.type]} · {lesson.duration}</span>
-        <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: 26, fontWeight: 800, color: dm ? '#e8eaed' : '#1a1a1a', margin: "14px 0 10px", lineHeight: 1.2 }}>{lesson.title}</h2>
-        <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 15, color: dm ? '#9aa0a6' : '#37474F', lineHeight: 1.7, margin: "0 0 16px", borderLeft: "3px solid #FFB74D", paddingLeft: 14, fontStyle: "italic" }}>{lesson.content}</p>
-        {lesson.videoUrl && <VideoEmbed url={lesson.videoUrl} />}
-        {lesson.articleUrl && (
-          <a href={lesson.articleUrl} target="_blank" rel="noopener noreferrer" style={{ display: "flex", alignItems: "center", gap: 10, background: "linear-gradient(135deg, #E3F2FD, #BBDEFB)", borderRadius: 14, padding: "14px 18px", marginBottom: 16, textDecoration: "none", border: "1px solid #90CAF9", transition: "all 0.2s ease" }}
-            onMouseEnter={e => e.currentTarget.style.transform = "translateY(-2px)"} onMouseLeave={e => e.currentTarget.style.transform = "none"}>
-            <span style={{ fontSize: 24 }}>📄</span>
-            <div>
-              <div style={{ fontFamily: "'Space Mono', monospace", fontSize: 10, color: "#1565C0", textTransform: "uppercase", letterSpacing: "0.08em" }}>Weiterführender Artikel</div>
-              <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14, fontWeight: 600, color: "#0D47A1" }}>{lesson.articleTitle || "Artikel lesen →"}</div>
-            </div>
-            <span style={{ marginLeft: "auto", fontSize: 18, color: "#1565C0" }}>↗</span>
-          </a>
-        )}
-        {lesson.tips && (<div style={{ marginBottom: 20 }}><h4 style={{ fontFamily: "'Space Mono', monospace", fontSize: 12, color: tc[lesson.type], textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 10 }}>💡 Tipps</h4>
-          {lesson.tips.map((tip, i) => (<div key={i} style={{ display: "flex", gap: 8, marginBottom: 6, padding: "8px 12px", background: dm ? "rgba(255,248,225,0.08)" : "#FFF8E1", borderRadius: 10, fontSize: 13, color: dm ? "#e8eaed" : "#4E342E", fontFamily: "'DM Sans', sans-serif" }}><span style={{ color: "#FFB74D", fontWeight: 700 }}>✦</span><span>{tip}</span></div>))}</div>)}
-        {lesson.steps && (<div style={{ marginBottom: 20 }}><h4 style={{ fontFamily: "'Space Mono', monospace", fontSize: 12, color: tc[lesson.type], textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 10 }}>📋 Schritt für Schritt</h4>
-          {lesson.steps.map((step, i) => (<div key={i} style={{ display: "flex", gap: 10, marginBottom: 6, padding: "10px 12px", background: sBg[lesson.type], borderRadius: 10, fontSize: 13, color: sC[lesson.type], fontFamily: "'DM Sans', sans-serif" }}><span style={{ background: sB[lesson.type], color: "white", borderRadius: "50%", width: 22, height: 22, minWidth: 22, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 11, fontWeight: 700 }}>{i + 1}</span><span style={{ lineHeight: 1.5 }}>{step}</span></div>))}</div>)}
-        {lesson.proTip && (<div style={{ background: dm ? "rgba(255,183,77,0.1)" : "linear-gradient(135deg, #FFF3E0, #FFECB3)", borderRadius: 14, padding: "14px 16px", border: "2px dashed #FFB74D", marginBottom: 12 }}><div style={{ fontFamily: "'Space Mono', monospace", fontSize: 11, fontWeight: 700, color: "#E65100", marginBottom: 4 }}>🤙 PRO-TIPP</div><p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14, color: dm ? '#e8eaed' : '#4E342E', margin: 0, fontWeight: 500 }}>{lesson.proTip}</p></div>)}
-        {lesson.keyTerms && (<div style={{ marginTop: 12 }}><div style={{ display: "flex", flexWrap: "wrap", gap: 5 }}>{lesson.keyTerms.map((t, i) => <span key={i} style={{ background: dm ? "rgba(255,255,255,0.08)" : "#ECEFF1", color: dm ? "#9aa0a6" : "#546E7A", padding: "3px 10px", borderRadius: 20, fontSize: 11, fontFamily: "'Space Mono', monospace" }}>{t}</span>)}</div></div>)}
-      </div>
-    </div>
-  );
-};
+import { SURF_SPOTS, GOALS, BOARD_TYPES, EXPERIENCE_LEVELS, CONTENT_POOL } from './data.js';
+import { generateProgram } from './generator.js';
+import { WaveBackground, LessonCard, LessonModal } from './components.jsx';
+import { useWeather, windDirLabel, weatherLabel } from './weather.js';
 
 const STORAGE_KEY = "soulsurf_data";
 function loadSaved() { try { if (typeof localStorage === "undefined") return null; const d = localStorage.getItem(STORAGE_KEY); return d ? JSON.parse(d) : null; } catch { return null; } }
@@ -442,10 +21,15 @@ export default function SurfApp() {
   const [filter, setFilter] = useState("all");
   const [activeDay, setActiveDay] = useState(null);
   const [completed, setCompleted] = useState({});
+  const [diary, setDiary] = useState({});
   const [spotSearch, setSpotSearch] = useState("");
   const [showResetConfirm, setShowResetConfirm] = useState(false);
   const [builderStep, setBuilderStep] = useState(1);
   const [hydrated, setHydrated] = useState(false);
+  const [savedAt, setSavedAt] = useState(null);
+  const [diaryOpen, setDiaryOpen] = useState(null);
+  const [importMsg, setImportMsg] = useState(null);
+  const [surfDays, setSurfDays] = useState([]);
 
   // SSR-safe: load saved data after mount
   useEffect(() => {
@@ -458,6 +42,10 @@ export default function SurfApp() {
       setExperience(saved.experience || "");
       setProgram(generateProgram(saved.days, saved.goal, saved.spot, saved.equipment));
       setCompleted(saved.completed || {});
+      setDiary(saved.diary || {});
+      setActiveDay(saved.activeDay || 1);
+      setSavedAt(saved.savedAt || null);
+      setSurfDays(saved.surfDays || []);
     }
     setHydrated(true);
   }, []);
@@ -471,6 +59,8 @@ export default function SurfApp() {
   }, []);
   const toggleDark = () => { const next = !darkMode; setDarkMode(next); try { localStorage.setItem("soulsurf_dark", String(next)); } catch {} };
   const dm = darkMode;
+  const spotObj = SURF_SPOTS.find(s => s.id === spot);
+  const { weather, loading: weatherLoading } = useWeather(screen === "program" ? spotObj : null);
   const t = {
     bg: dm ? "#0f1419" : "#FFFDF7", bg2: dm ? "#1a2332" : "#FFF8E1", bg3: dm ? "#1e2d3d" : "#E0F2F1",
     card: dm ? "rgba(30,45,61,0.8)" : "rgba(255,255,255,0.8)", cardBorder: dm ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.05)",
@@ -480,10 +70,97 @@ export default function SurfApp() {
     inputBg: dm ? "rgba(30,45,61,0.8)" : "rgba(255,255,255,0.8)", inputBorder: dm ? "#2d3f50" : "#E0E0E0",
   };
 
-  const toggle = (id) => setCompleted(p => { const next = { ...p, [id]: !p[id] }; saveData({ days, goal, spot, board, experience, equipment: { board, experience }, completed: next }); return next; });
-  const build = () => { if (!days || !goal || !spot) return; const eq = { board: board || "none", experience: experience || "zero" }; const p = generateProgram(days, goal, spot, eq); setProgram(p); setScreen("program"); setActiveDay(1); setCompleted({}); saveData({ days, goal, spot, board, experience, equipment: eq, completed: {} }); };
-  const continueSaved = () => { if (!hasSaved) return; setScreen("program"); setActiveDay(1); };
-  const resetProgram = () => { clearData(); setProgram(null); setDays(7); setGoal(""); setSpot(""); setBoard(""); setExperience(""); setCompleted({}); setScreen("home"); setShowResetConfirm(false); setBuilderStep(1); };
+  const saveAll = (overrides = {}) => {
+    const data = { days, goal, spot, board, experience, equipment: { board, experience }, completed, diary, activeDay, surfDays, ...overrides };
+    saveData(data);
+  };
+
+  // Streak calculation
+  const todayStr = new Date().toISOString().slice(0, 10);
+  const surfedToday = surfDays.includes(todayStr);
+  const streak = (() => {
+    if (surfDays.length === 0) return 0;
+    const sorted = [...surfDays].sort().reverse();
+    const today = new Date(); today.setHours(0,0,0,0);
+    const yesterday = new Date(today); yesterday.setDate(yesterday.getDate() - 1);
+    // streak starts from today or yesterday
+    const latestDate = new Date(sorted[0] + "T00:00:00");
+    if (latestDate < yesterday) return 0;
+    let count = 0;
+    let checkDate = latestDate;
+    for (const ds of sorted) {
+      const d = new Date(ds + "T00:00:00");
+      if (d.getTime() === checkDate.getTime()) {
+        count++;
+        checkDate = new Date(checkDate); checkDate.setDate(checkDate.getDate() - 1);
+      } else if (d < checkDate) break;
+    }
+    return count;
+  })();
+
+  const toggleSurfDay = () => {
+    setSurfDays(prev => {
+      const next = prev.includes(todayStr) ? prev.filter(d => d !== todayStr) : [...prev, todayStr];
+      saveAll({ surfDays: next });
+      return next;
+    });
+  };
+
+  const toggle = (id) => setCompleted(p => { const next = { ...p, [id]: !p[id] }; saveAll({ completed: next }); return next; });
+  const build = () => { if (!days || !goal || !spot) return; const eq = { board: board || "none", experience: experience || "zero" }; const p = generateProgram(days, goal, spot, eq); setProgram(p); setScreen("program"); setActiveDay(1); setCompleted({}); setDiary({}); setSurfDays([]); saveData({ days, goal, spot, board, experience, equipment: eq, completed: {}, diary: {}, activeDay: 1, surfDays: [] }); };
+  const continueSaved = () => { if (!hasSaved) return; setScreen("program"); };
+  const resetProgram = () => { clearData(); setProgram(null); setDays(7); setGoal(""); setSpot(""); setBoard(""); setExperience(""); setCompleted({}); setDiary({}); setSurfDays([]); setScreen("home"); setShowResetConfirm(false); setBuilderStep(1); setSavedAt(null); };
+
+  const updateDiary = (dayNum, field, value) => {
+    setDiary(prev => {
+      const entry = prev[dayNum] || { date: new Date().toISOString() };
+      const next = { ...prev, [dayNum]: { ...entry, [field]: value, date: entry.date || new Date().toISOString() } };
+      saveAll({ diary: next });
+      return next;
+    });
+  };
+
+  const exportData = () => {
+    try {
+      const data = { days, goal, spot, board, experience, equipment: { board, experience }, completed, diary, activeDay, surfDays, exportedAt: new Date().toISOString(), version: "2.6" };
+      const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `soulsurf-backup-${new Date().toISOString().slice(0, 10)}.json`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    } catch (e) { console.error("Export failed:", e); }
+  };
+
+  const importData = (file) => {
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      try {
+        const data = JSON.parse(e.target.result);
+        if (!data.days || !data.goal || !data.spot) { setImportMsg("❌ Ungültige Datei – kein SoulSurf-Backup."); return; }
+        setDays(data.days);
+        setGoal(data.goal);
+        setSpot(data.spot);
+        setBoard(data.board || "");
+        setExperience(data.experience || "");
+        setCompleted(data.completed || {});
+        setDiary(data.diary || {});
+        setActiveDay(data.activeDay || 1);
+        setSurfDays(data.surfDays || []);
+        const eq = data.equipment || { board: data.board || "none", experience: data.experience || "zero" };
+        setProgram(generateProgram(data.days, data.goal, data.spot, eq));
+        saveData({ ...data, equipment: eq });
+        setSavedAt(new Date().toISOString());
+        setImportMsg("✅ Backup erfolgreich importiert!");
+        setTimeout(() => setImportMsg(null), 3000);
+      } catch { setImportMsg("❌ Datei konnte nicht gelesen werden."); setTimeout(() => setImportMsg(null), 3000); }
+    };
+    reader.readAsText(file);
+  };
 
   const hasSaved = hydrated && program !== null && days && goal && spot;
   const total = program?.program?.reduce((s, d) => s + d.lessons.length, 0) || 0;
@@ -538,11 +215,14 @@ export default function SurfApp() {
             <div onClick={() => setScreen("home")} style={{ cursor: "pointer", display: "flex", alignItems: "center", gap: 10 }}>
               <span style={{ fontSize: 28, animation: "float 3s ease-in-out infinite" }}>🏄</span>
               <div><h1 style={{ fontFamily: "'Playfair Display', serif", fontSize: 22, fontWeight: 900, color: t.text, lineHeight: 1 }}>Soul<span style={{ color: t.accent }}>Surf</span></h1>
-              <span style={{ fontFamily: "'Space Mono', monospace", fontSize: 9, color: t.text3, letterSpacing: "0.15em", textTransform: "uppercase" }}>v2.2 · ride the vibe ☮</span></div>
+              <span style={{ fontFamily: "'Space Mono', monospace", fontSize: 9, color: t.text3, letterSpacing: "0.15em", textTransform: "uppercase" }}>v2.7 · ride the vibe ☮</span></div>
             </div>
             <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
               <button onClick={toggleDark} style={{ background: dm ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.05)", border: "none", borderRadius: "50%", width: 36, height: 36, fontSize: 18, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }} title={dm ? "Light Mode" : "Dark Mode"}>{dm ? "☀️" : "🌙"}</button>
-              {screen === "program" && <button onClick={() => { setScreen("builder"); setBuilderStep(1); }} style={{ background: "linear-gradient(135deg, #FF7043, #FFB74D)", color: "white", border: "none", borderRadius: 20, padding: "8px 16px", fontSize: 13, fontWeight: 700, cursor: "pointer", fontFamily: "'Space Mono', monospace" }}>✎ Neu planen</button>}
+              {screen === "program" && <>
+                <button onClick={exportData} title="Backup exportieren" style={{ background: dm ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.05)", border: "none", borderRadius: "50%", width: 36, height: 36, fontSize: 16, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}>💾</button>
+                <button onClick={() => { setScreen("builder"); setBuilderStep(1); }} style={{ background: "linear-gradient(135deg, #FF7043, #FFB74D)", color: "white", border: "none", borderRadius: 20, padding: "8px 16px", fontSize: 13, fontWeight: 700, cursor: "pointer", fontFamily: "'Space Mono', monospace" }}>✎ Neu planen</button>
+              </>}
             </div>
           </div>
         </header>
@@ -561,12 +241,20 @@ export default function SurfApp() {
                   <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 12 }}>
                     <span style={{ background: "rgba(255,255,255,0.15)", borderRadius: 16, padding: "4px 10px", fontSize: 12 }}>{savedSpot?.emoji} {savedSpot?.name}</span>
                     <span style={{ background: "rgba(255,255,255,0.15)", borderRadius: 16, padding: "4px 10px", fontSize: 12 }}>✓ {done}/{total} erledigt</span>
+                    {Object.keys(diary).length > 0 && <span style={{ background: "rgba(255,255,255,0.15)", borderRadius: 16, padding: "4px 10px", fontSize: 12 }}>📓 {Object.keys(diary).length} Tagebuch-Einträge</span>}
+                    {streak > 0 && <span style={{ background: "rgba(255,183,77,0.25)", borderRadius: 16, padding: "4px 10px", fontSize: 12 }}>🔥 {streak} Tage Streak</span>}
                   </div>
+                  {savedAt && (
+                    <div style={{ fontFamily: "'Space Mono', monospace", fontSize: 10, opacity: 0.6, marginBottom: 10 }}>
+                      Zuletzt bearbeitet: {(() => { try { const d = new Date(savedAt); const now = new Date(); const diff = Math.floor((now - d) / 60000); if (diff < 1) return "gerade eben"; if (diff < 60) return `vor ${diff} Min`; if (diff < 1440) return `vor ${Math.floor(diff / 60)} Std`; return d.toLocaleDateString("de-DE", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" }); } catch { return ""; } })()}
+                    </div>
+                  )}
                   <div style={{ background: "rgba(255,255,255,0.2)", borderRadius: 10, height: 6, overflow: "hidden", marginBottom: 16 }}>
                     <div style={{ background: "linear-gradient(90deg, #FFB74D, #FF7043)", height: "100%", borderRadius: 10, width: `${total > 0 ? (done / total) * 100 : 0}%` }} />
                   </div>
                   <div style={{ display: "flex", gap: 10 }}>
                     <button onClick={continueSaved} style={{ flex: 1, background: "white", color: "#004D40", border: "none", borderRadius: 14, padding: "14px", fontSize: 16, fontWeight: 700, cursor: "pointer", fontFamily: "'Playfair Display', serif" }}>▶ Weiter surfen</button>
+                    <button onClick={exportData} title="Backup exportieren" style={{ background: "rgba(255,255,255,0.15)", color: "white", border: "1px solid rgba(255,255,255,0.3)", borderRadius: 14, padding: "14px 18px", fontSize: 14, cursor: "pointer" }}>💾</button>
                     <button onClick={() => setShowResetConfirm(true)} style={{ background: "rgba(255,255,255,0.15)", color: "white", border: "1px solid rgba(255,255,255,0.3)", borderRadius: 14, padding: "14px 18px", fontSize: 14, cursor: "pointer" }}>🗑</button>
                   </div>
                 </div>
@@ -593,6 +281,18 @@ export default function SurfApp() {
               <div style={{ marginTop: 50, padding: 24, background: t.card, borderRadius: 20, border: `1px dashed ${dm ? "#2d3f50" : "#CFD8DC"}` }}>
                 <p style={{ fontFamily: "'Space Mono', monospace", fontSize: 12, color: t.text3, fontStyle: "italic" }}>☮ "The best surfer out there is the one having the most fun." — Phil Edwards</p>
               </div>
+              <div style={{ marginTop: 20, display: "flex", gap: 10, justifyContent: "center", flexWrap: "wrap" }}>
+                {hasSaved && (
+                  <button onClick={exportData} style={{ background: t.inputBg, color: t.text2, border: `1px solid ${t.inputBorder}`, borderRadius: 12, padding: "10px 18px", fontSize: 12, fontWeight: 600, cursor: "pointer", fontFamily: "'Space Mono', monospace" }}>💾 Backup exportieren</button>
+                )}
+                <label style={{ background: t.inputBg, color: t.text2, border: `1px solid ${t.inputBorder}`, borderRadius: 12, padding: "10px 18px", fontSize: 12, fontWeight: 600, cursor: "pointer", fontFamily: "'Space Mono', monospace" }}>
+                  📂 Backup importieren
+                  <input type="file" accept=".json" onChange={e => { importData(e.target.files?.[0]); e.target.value = ""; }} style={{ display: "none" }} />
+                </label>
+              </div>
+              {importMsg && (
+                <div style={{ marginTop: 12, textAlign: "center", padding: "10px 16px", borderRadius: 12, background: importMsg.startsWith("✅") ? (dm ? "rgba(77,182,172,0.15)" : "#E0F2F1") : (dm ? "rgba(255,112,67,0.15)" : "#FFF3E0"), fontSize: 13, fontWeight: 600, color: importMsg.startsWith("✅") ? "#4DB6AC" : "#E65100", animation: "slideUp 0.3s ease forwards", opacity: 0 }}>{importMsg}</div>
+              )}
             </div>
           )}
 
@@ -716,6 +416,19 @@ export default function SurfApp() {
                     <div style={{ background: "linear-gradient(90deg, #FFB74D, #FF7043)", height: "100%", borderRadius: 10, transition: "width 0.5s ease", width: `${total > 0 ? (done / total) * 100 : 0}%` }} />
                   </div>
                 </div>
+                <div style={{ marginTop: 14, display: "flex", gap: 10, alignItems: "center" }}>
+                  <button onClick={toggleSurfDay} style={{ display: "flex", alignItems: "center", gap: 8, background: surfedToday ? "rgba(255,183,77,0.25)" : "rgba(255,255,255,0.1)", border: `1px solid ${surfedToday ? "#FFB74D" : "rgba(255,255,255,0.2)"}`, borderRadius: 12, padding: "8px 14px", cursor: "pointer", transition: "all 0.2s ease", color: "white", fontSize: 13, fontWeight: 600 }}>
+                    <span style={{ fontSize: 18 }}>{surfedToday ? "🤙" : "🏄"}</span>
+                    {surfedToday ? "Heute gesurft ✓" : "Heute gesurft?"}
+                  </button>
+                  {streak > 0 && (
+                    <div style={{ display: "flex", alignItems: "center", gap: 6, background: "rgba(255,183,77,0.2)", borderRadius: 12, padding: "8px 14px" }}>
+                      <span style={{ fontSize: 16 }}>🔥</span>
+                      <span style={{ fontFamily: "'Space Mono', monospace", fontSize: 13, fontWeight: 700, color: "#FFB74D" }}>{streak}</span>
+                      <span style={{ fontSize: 11, opacity: 0.8 }}>{streak === 1 ? "Tag" : "Tage"} Streak</span>
+                    </div>
+                  )}
+                </div>
               </div>
               {program.spotWarning && (
                 <div style={{ background: dm ? "rgba(255,112,67,0.15)" : "#FFF3E0", border: `1px solid ${dm ? "rgba(255,112,67,0.3)" : "#FFB74D"}`, borderRadius: 14, padding: "12px 16px", marginBottom: 16, display: "flex", alignItems: "center", gap: 10 }}>
@@ -737,6 +450,45 @@ export default function SurfApp() {
                   {program.spot.tips.map((tip, i) => (<div key={i} style={{ display: "flex", gap: 8, marginBottom: 4, fontSize: 13, color: t.text2 }}><span style={{ color: "#5C6BC0" }}>•</span><span>{tip}</span></div>))}
                 </div>
               )}
+              {/* Weather Widget */}
+              {weather && (
+                <div style={{ background: dm ? "rgba(30,45,61,0.8)" : "linear-gradient(135deg, #E3F2FD, #E0F7FA)", border: `1px solid ${dm ? "rgba(77,182,172,0.2)" : "#B2EBF2"}`, borderRadius: 16, padding: "14px 18px", marginBottom: 20 }}>
+                  <div style={{ fontFamily: "'Space Mono', monospace", fontSize: 10, color: dm ? "#4DB6AC" : "#00838F", textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 10 }}>🌤️ Wetter · {program.spot?.name}</div>
+                  <div style={{ display: "flex", gap: 12, alignItems: "center", marginBottom: 10 }}>
+                    <span style={{ fontSize: 32 }}>{weatherLabel(weather.current?.code).emoji}</span>
+                    <div>
+                      <div style={{ fontFamily: "'Playfair Display', serif", fontSize: 22, fontWeight: 700, color: dm ? "#e8eaed" : "#263238" }}>{weather.current?.temp}°C</div>
+                      <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, color: dm ? "#9aa0a6" : "#546E7A" }}>
+                        💨 {weather.current?.wind} km/h {windDirLabel(weather.current?.windDir)} · {weatherLabel(weather.current?.code).label}
+                      </div>
+                    </div>
+                  </div>
+                  {weather.forecast && weather.forecast.length > 0 && (
+                    <div style={{ display: "flex", gap: 8 }}>
+                      {weather.forecast.map((day, i) => (
+                        <div key={i} style={{ flex: 1, background: dm ? "rgba(255,255,255,0.05)" : "rgba(255,255,255,0.7)", borderRadius: 10, padding: "8px 6px", textAlign: "center" }}>
+                          <div style={{ fontFamily: "'Space Mono', monospace", fontSize: 10, color: dm ? "#9aa0a6" : "#78909C", marginBottom: 4 }}>
+                            {new Date(day.date + "T00:00:00").toLocaleDateString("de-DE", { weekday: "short" })}
+                          </div>
+                          <div style={{ fontSize: 18 }}>{weatherLabel(day.code).emoji}</div>
+                          <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 11, fontWeight: 600, color: dm ? "#e8eaed" : "#263238" }}>
+                            {day.tempMax}° / {day.tempMin}°
+                          </div>
+                          <div style={{ fontFamily: "'Space Mono', monospace", fontSize: 9, color: dm ? "#9aa0a6" : "#90A4AE" }}>
+                            💨 {day.windMax} {windDirLabel(day.windDir)}
+                          </div>
+                          {day.rain > 0 && <div style={{ fontSize: 9, color: "#42A5F5" }}>🌧 {day.rain}mm</div>}
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
+              {weatherLoading && (
+                <div style={{ background: dm ? "rgba(30,45,61,0.5)" : "#E3F2FD", borderRadius: 14, padding: "10px 16px", marginBottom: 16, textAlign: "center" }}>
+                  <span style={{ fontSize: 12, color: dm ? "#9aa0a6" : "#546E7A" }}>🌤️ Wetter wird geladen...</span>
+                </div>
+              )}
               <div style={{ display: "flex", gap: 8, marginBottom: 18, flexWrap: "wrap" }}>
                 {[{ k: "all", l: "Alle", e: "📚" }, { k: "equipment", l: "Equipment", e: "🎒" }, { k: "warmup", l: "Warm-Up", e: "🔥" }, { k: "theory", l: "Theorie", e: "📖" }, { k: "practice", l: "Praxis", e: "🏄" }].map(f => (
                   <button key={f.k} onClick={() => setFilter(f.k)} style={{ background: filter === f.k ? (dm ? "#4DB6AC" : "#263238") : t.inputBg, color: filter === f.k ? "white" : t.text2, border: `1px solid ${filter === f.k ? (dm ? "#4DB6AC" : "#263238") : t.inputBorder}`, borderRadius: 20, padding: "7px 14px", fontSize: 13, fontWeight: 600, cursor: "pointer" }}>{f.e} {f.l}</button>
@@ -747,7 +499,7 @@ export default function SurfApp() {
                 if (fl.length === 0) return null;
                 return (
                   <div key={dayData.day} style={{ marginBottom: 20 }}>
-                    <button onClick={() => setActiveDay(activeDay === dayData.day ? null : dayData.day)} style={{ width: "100%", display: "flex", justifyContent: "space-between", alignItems: "center", background: t.card, border: `1px solid ${t.cardBorder}`, borderRadius: 14, padding: "12px 16px", cursor: "pointer" }}>
+                    <button onClick={() => { const next = activeDay === dayData.day ? null : dayData.day; setActiveDay(next); setDiaryOpen(null); saveAll({ activeDay: next }); }} style={{ width: "100%", display: "flex", justifyContent: "space-between", alignItems: "center", background: t.card, border: `1px solid ${t.cardBorder}`, borderRadius: 14, padding: "12px 16px", cursor: "pointer" }}>
                       <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
                         <span style={{ background: "linear-gradient(135deg, #009688, #4DB6AC)", color: "white", borderRadius: 10, width: 36, height: 36, display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "'Space Mono', monospace", fontWeight: 700, fontSize: 13 }}>D{dayData.day}</span>
                         <div style={{ textAlign: "left" }}>
@@ -768,6 +520,99 @@ export default function SurfApp() {
                             </div>
                           </div>
                         ))}
+                        {/* Surf Diary */}
+                        <div style={{ marginTop: 8 }}>
+                          <button onClick={() => setDiaryOpen(diaryOpen === dayData.day ? null : dayData.day)} style={{ width: "100%", display: "flex", alignItems: "center", gap: 10, background: (diary[dayData.day]?.whatWorked || diary[dayData.day]?.whatFailed || diary[dayData.day]?.notes || diary[dayData.day]?.mood) ? (dm ? "rgba(77,182,172,0.12)" : "#E0F2F1") : (dm ? "rgba(255,255,255,0.04)" : "#F5F5F5"), border: `1px dashed ${(diary[dayData.day]?.whatWorked || diary[dayData.day]?.mood) ? "#4DB6AC" : (dm ? "#2d3f50" : "#CFD8DC")}`, borderRadius: 12, padding: "10px 14px", cursor: "pointer", transition: "all 0.2s ease" }}>
+                            <span style={{ fontSize: 18 }}>{(diary[dayData.day]?.whatWorked || diary[dayData.day]?.mood) ? "📓" : "📝"}</span>
+                            <div style={{ flex: 1, textAlign: "left" }}>
+                              <span style={{ fontFamily: "'Space Mono', monospace", fontSize: 11, fontWeight: 700, color: (diary[dayData.day]?.whatWorked || diary[dayData.day]?.mood) ? "#4DB6AC" : t.text3, textTransform: "uppercase", letterSpacing: "0.05em" }}>
+                                {(diary[dayData.day]?.whatWorked || diary[dayData.day]?.mood) ? "Surf-Tagebuch ✓" : "Surf-Tagebuch"}
+                              </span>
+                              {!diaryOpen && diary[dayData.day] && (diary[dayData.day].whatWorked || diary[dayData.day].mood) && (
+                                <div style={{ display: "flex", gap: 6, alignItems: "center", marginTop: 2 }}>
+                                  {diary[dayData.day].mood && <span style={{ fontSize: 14 }}>{["", "😩", "😕", "😐", "😊", "🤩"][diary[dayData.day].mood]}</span>}
+                                  {diary[dayData.day].waveHeight && <span style={{ fontSize: 10, color: t.text3, fontFamily: "'Space Mono', monospace" }}>{diary[dayData.day].waveHeight}</span>}
+                                  {diary[dayData.day].whatWorked && <span style={{ fontSize: 12, color: t.text2, whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", maxWidth: 160 }}>{diary[dayData.day].whatWorked}</span>}
+                                </div>
+                              )}
+                            </div>
+                            <span style={{ fontSize: 14, color: t.text3, transition: "transform 0.2s ease", transform: diaryOpen === dayData.day ? "rotate(180deg)" : "rotate(0deg)" }}>▾</span>
+                          </button>
+                          {diaryOpen === dayData.day && (
+                            <div style={{ background: dm ? "rgba(30,45,61,0.6)" : "rgba(255,255,255,0.9)", border: `1px solid ${dm ? "#2d3f50" : "#E0E0E0"}`, borderRadius: 14, padding: 16, marginTop: 8, animation: "slideUp 0.3s ease forwards", opacity: 0 }}>
+                              <div style={{ fontFamily: "'Space Mono', monospace", fontSize: 10, color: t.accent, textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 12 }}>📓 Tag {dayData.day} – Surf-Tagebuch</div>
+                              {[
+                                { key: "whatWorked", label: "Was hat gut geklappt?", icon: "✅", placeholder: "z.B. Pop-Up war heute schneller, Wellen besser gelesen..." },
+                                { key: "whatFailed", label: "Was hat nicht geklappt?", icon: "🔄", placeholder: "z.B. Timing beim Anpaddeln noch schwierig..." },
+                                { key: "focusTomorrow", label: "Fokus für morgen", icon: "🎯", placeholder: "z.B. Früher paddeln, Blick nach vorne..." },
+                                { key: "notes", label: "Notizen", icon: "📝", placeholder: "Wellen, Stimmung, Wetter, Erlebnisse..." },
+                              ].map(field => (
+                                <div key={field.key} style={{ marginBottom: 12 }}>
+                                  <label style={{ display: "block", fontFamily: "'DM Sans', sans-serif", fontSize: 12, fontWeight: 600, color: t.text2, marginBottom: 4 }}>{field.icon} {field.label}</label>
+                                  <textarea
+                                    value={diary[dayData.day]?.[field.key] || ""}
+                                    onChange={e => updateDiary(dayData.day, field.key, e.target.value)}
+                                    placeholder={field.placeholder}
+                                    rows={field.key === "notes" ? 3 : 2}
+                                    style={{ width: "100%", padding: "10px 12px", borderRadius: 10, border: `1px solid ${t.inputBorder}`, background: t.inputBg, color: t.text, fontSize: 13, fontFamily: "'DM Sans', sans-serif", resize: "vertical", lineHeight: 1.5 }}
+                                  />
+                                </div>
+                              ))}
+                              {/* A2: Mood + Conditions */}
+                              <div style={{ borderTop: `1px dashed ${dm ? "#2d3f50" : "#E0E0E0"}`, paddingTop: 12, marginTop: 4, marginBottom: 12 }}>
+                                <div style={{ fontFamily: "'Space Mono', monospace", fontSize: 10, color: t.accent, textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 10 }}>Stimmung & Bedingungen</div>
+                                <div style={{ marginBottom: 10 }}>
+                                  <label style={{ display: "block", fontFamily: "'DM Sans', sans-serif", fontSize: 12, fontWeight: 600, color: t.text2, marginBottom: 6 }}>Mood</label>
+                                  <div style={{ display: "flex", gap: 6 }}>
+                                    {[{ v: 1, e: "😩" }, { v: 2, e: "😕" }, { v: 3, e: "😐" }, { v: 4, e: "😊" }, { v: 5, e: "🤩" }].map(m => (
+                                      <button key={m.v} onClick={() => updateDiary(dayData.day, "mood", m.v)} style={{ fontSize: 24, padding: "6px 8px", borderRadius: 10, border: diary[dayData.day]?.mood === m.v ? "2px solid #4DB6AC" : `1px solid ${t.inputBorder}`, background: diary[dayData.day]?.mood === m.v ? (dm ? "rgba(77,182,172,0.2)" : "#E0F2F1") : t.inputBg, cursor: "pointer", transition: "all 0.15s ease", transform: diary[dayData.day]?.mood === m.v ? "scale(1.15)" : "scale(1)" }}>{m.e}</button>
+                                    ))}
+                                  </div>
+                                </div>
+                                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: 10 }}>
+                                  <div>
+                                    <label style={{ display: "block", fontFamily: "'DM Sans', sans-serif", fontSize: 12, fontWeight: 600, color: t.text2, marginBottom: 4 }}>🌊 Wellenhöhe</label>
+                                    <div style={{ display: "flex", gap: 4, flexWrap: "wrap" }}>
+                                      {["Flat", "0.5m", "1m", "1.5m", "2m+"].map(wh => (
+                                        <button key={wh} onClick={() => updateDiary(dayData.day, "waveHeight", wh)} style={{ padding: "5px 10px", borderRadius: 8, fontSize: 11, fontWeight: 600, border: diary[dayData.day]?.waveHeight === wh ? "2px solid #4DB6AC" : `1px solid ${t.inputBorder}`, background: diary[dayData.day]?.waveHeight === wh ? (dm ? "rgba(77,182,172,0.2)" : "#E0F2F1") : t.inputBg, color: diary[dayData.day]?.waveHeight === wh ? "#4DB6AC" : t.text2, cursor: "pointer" }}>{wh}</button>
+                                      ))}
+                                    </div>
+                                  </div>
+                                  <div>
+                                    <label style={{ display: "block", fontFamily: "'DM Sans', sans-serif", fontSize: 12, fontWeight: 600, color: t.text2, marginBottom: 4 }}>👥 Crowd</label>
+                                    <div style={{ display: "flex", gap: 4 }}>
+                                      {[{ v: "low", l: "Leer" }, { v: "med", l: "Okay" }, { v: "high", l: "Voll" }].map(c => (
+                                        <button key={c.v} onClick={() => updateDiary(dayData.day, "crowd", c.v)} style={{ padding: "5px 10px", borderRadius: 8, fontSize: 11, fontWeight: 600, border: diary[dayData.day]?.crowd === c.v ? "2px solid #4DB6AC" : `1px solid ${t.inputBorder}`, background: diary[dayData.day]?.crowd === c.v ? (dm ? "rgba(77,182,172,0.2)" : "#E0F2F1") : t.inputBg, color: diary[dayData.day]?.crowd === c.v ? "#4DB6AC" : t.text2, cursor: "pointer" }}>{c.l}</button>
+                                      ))}
+                                    </div>
+                                  </div>
+                                </div>
+                                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+                                  <div>
+                                    <label style={{ display: "block", fontFamily: "'DM Sans', sans-serif", fontSize: 12, fontWeight: 600, color: t.text2, marginBottom: 4 }}>⚡ Energy</label>
+                                    <div style={{ display: "flex", gap: 4 }}>
+                                      {[1, 2, 3, 4, 5].map(e => (
+                                        <button key={e} onClick={() => updateDiary(dayData.day, "energy", e)} style={{ width: 30, height: 30, borderRadius: 8, fontSize: 12, fontWeight: 700, border: diary[dayData.day]?.energy === e ? "2px solid #FFB74D" : `1px solid ${t.inputBorder}`, background: diary[dayData.day]?.energy === e ? (dm ? "rgba(255,183,77,0.2)" : "#FFF8E1") : t.inputBg, color: diary[dayData.day]?.energy === e ? "#FFB74D" : t.text2, cursor: "pointer" }}>{e}</button>
+                                      ))}
+                                    </div>
+                                  </div>
+                                  <div>
+                                    <label style={{ display: "block", fontFamily: "'DM Sans', sans-serif", fontSize: 12, fontWeight: 600, color: t.text2, marginBottom: 4 }}>🏄 Board</label>
+                                    <select value={diary[dayData.day]?.boardUsed || ""} onChange={e => updateDiary(dayData.day, "boardUsed", e.target.value)} style={{ width: "100%", padding: "7px 10px", borderRadius: 8, border: `1px solid ${t.inputBorder}`, background: t.inputBg, color: t.text, fontSize: 12 }}>
+                                      <option value="">– wählen –</option>
+                                      {BOARD_TYPES.map(b => <option key={b.id} value={b.id}>{b.emoji} {b.label}</option>)}
+                                    </select>
+                                  </div>
+                                </div>
+                              </div>
+                              {diary[dayData.day]?.date && (
+                                <div style={{ fontFamily: "'Space Mono', monospace", fontSize: 10, color: t.text3, textAlign: "right" }}>
+                                  Erstellt: {new Date(diary[dayData.day].date).toLocaleDateString("de-DE", { day: "numeric", month: "short" })}
+                                </div>
+                              )}
+                            </div>
+                          )}
+                        </div>
                       </div>
                     )}
                   </div>
