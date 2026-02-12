@@ -105,14 +105,37 @@ function generateProgram(numDays, goalId, spotId, equipment) {
   const goal = GOALS.find(g => g.id === goalId);
   const spot = SURF_SPOTS.find(s => s.id === spotId);
   const days = parseInt(numDays);
+  const experience = equipment?.experience || "zero";
+
+  // Experience-based theory/practice ratio
+  const EXP_RATIOS = { zero: { t: 0.6, p: 0.4 }, few: { t: 0.5, p: 0.5 }, some: { t: 0.4, p: 0.6 }, regular: { t: 0.2, p: 0.8 } };
+  const ratio = EXP_RATIOS[experience] || EXP_RATIOS.zero;
+
+  // Hard-skip titles by experience level
+  const HARD_SKIPS_REGULAR = [
+    "Dein erstes Surfboard", "Wetsuit & Zubehör", "Turtle Roll & Duck Dive",
+    "Dein Board kennen", "Whitewash-Wellen reiten", "Stance & Gewichtsverlagerung"
+  ];
+  const HARD_SKIPS_SOME = [
+    "Dein erstes Surfboard",
+    ...(goalId !== "erste-welle" ? ["Whitewash-Wellen reiten"] : [])
+  ];
+  const skipTitles = new Set(
+    experience === "regular" ? HARD_SKIPS_REGULAR :
+    experience === "some" ? HARD_SKIPS_SOME : []
+  );
+  // Spot-based: skip wetsuit lesson if no wetsuit needed
+  if (spot?.wetsuit === "none") skipTitles.add("Wetsuit & Zubehör");
+  const skipFilter = (item) => !skipTitles.has(item.title);
+
   let levels = ["beginner"];
-  if (["intermediate","advanced","expert"].includes(goal?.level)) levels.push("intermediate");
-  if (["advanced","expert"].includes(goal?.level)) levels.push("advanced");
+  if (["intermediate","advanced","expert"].includes(goal?.level) || experience === "some" || experience === "regular") levels.push("intermediate");
+  if (["advanced","expert"].includes(goal?.level) || experience === "regular") levels.push("advanced");
 
   const warmups = CONTENT_POOL.warmup.filter(w => levels.includes(w.level));
-  const theories = CONTENT_POOL.theory.filter(t => levels.includes(t.level));
-  const practices = CONTENT_POOL.practice.filter(p => levels.includes(p.level));
-  const equipmentLessons = CONTENT_POOL.equipment;
+  const theories = CONTENT_POOL.theory.filter(t => levels.includes(t.level)).filter(skipFilter);
+  const practices = CONTENT_POOL.practice.filter(p => levels.includes(p.level)).filter(skipFilter);
+  const equipmentLessons = CONTENT_POOL.equipment.filter(skipFilter);
 
   const earlyTheory = theories.filter(t => t.phase === "early");
   const midTheory = theories.filter(t => t.phase === "mid");
@@ -127,7 +150,7 @@ function generateProgram(numDays, goalId, spotId, equipment) {
 
   // Seeded RNG for consistent but varied programs per config
   let seed = 0;
-  for (const ch of `${goalId}-${spotId}-${days}`) seed = ((seed << 5) - seed + ch.charCodeAt(0)) | 0;
+  for (const ch of `${goalId}-${spotId}-${days}-${experience}`) seed = ((seed << 5) - seed + ch.charCodeAt(0)) | 0;
   seed = Math.abs(seed);
   function seededRandom() { seed = (seed * 16807 + 0) % 2147483647; return (seed - 1) / 2147483646; }
   function seededShuffle(arr) { const a = [...arr]; for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(seededRandom() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; }
@@ -138,7 +161,20 @@ function generateProgram(numDays, goalId, spotId, equipment) {
     if (progress <= 0.3) pool = [...earlyTheory, ...midTheory];
     else if (progress <= 0.7) pool = [...midTheory, ...lateTheory, ...earlyTheory];
     else pool = [...lateTheory, ...midTheory];
-    const unused = seededShuffle(pool.filter(t => !usedTheory.has(t.title)));
+    let unused = seededShuffle(pool.filter(t => !usedTheory.has(t.title)));
+    // Spot-based prioritization: push relevant lessons to front for early days
+    if (progress <= 0.3 && spot) {
+      const wt = (spot.waveType || "").toLowerCase();
+      const priorityTitles = [];
+      if (wt.includes("beachbreak")) priorityTitles.push("Strömungen & Channels", "Sicherheit im Wasser");
+      if (wt.includes("pointbreak")) priorityTitles.push("Surf-Etikette & Vorfahrt", "Wave Positioning");
+      if (wt.includes("riff") || wt.includes("reef")) priorityTitles.push("Sicherheit im Wasser", "Wellentypen verstehen");
+      if (priorityTitles.length > 0) {
+        const priority = unused.filter(t => priorityTitles.includes(t.title));
+        const rest = unused.filter(t => !priorityTitles.includes(t.title));
+        unused = [...priority, ...rest];
+      }
+    }
     if (unused.length > 0) { const pick = unused[0]; usedTheory.add(pick.title); return pick; }
     return null;
   }
@@ -166,9 +202,30 @@ function generateProgram(numDays, goalId, spotId, equipment) {
     if (d === 1) {
       const eqToAdd = [];
       if (!equipment || equipment.experience === "zero" || equipment.experience === "few") {
-        eqToAdd.push(equipmentLessons[0], equipmentLessons[1], equipmentLessons[3]);
+        // Add available equipment lessons (already filtered by skipFilter)
+        const eqFirst = equipmentLessons.find(e => e.title === "Dein erstes Surfboard");
+        const eqWetsuit = equipmentLessons.find(e => e.title === "Wetsuit & Zubehör");
+        const eqSpotCheck = equipmentLessons.find(e => e.title === "Spot-Check: Worauf achten?");
+        if (eqFirst) eqToAdd.push(eqFirst);
+        if (eqWetsuit) eqToAdd.push(eqWetsuit);
+        if (eqSpotCheck) eqToAdd.push(eqSpotCheck);
       } else {
-        eqToAdd.push(equipmentLessons[2], equipmentLessons[3]);
+        // some/regular: only board-pflege and spot-check (minus skipped)
+        const eqPflege = equipmentLessons.find(e => e.title === "Board-Pflege & Transport");
+        const eqSpotCheck = equipmentLessons.find(e => e.title === "Spot-Check: Worauf achten?");
+        if (eqPflege) eqToAdd.push(eqPflege);
+        if (eqSpotCheck) eqToAdd.push(eqSpotCheck);
+      }
+      // For 4/3mm spots, wetsuit lesson goes first and prominently
+      if (spot?.wetsuit === "4/3mm") {
+        const eqWetsuit = equipmentLessons.find(e => e.title === "Wetsuit & Zubehör");
+        if (eqWetsuit && !eqToAdd.some(e => e.title === "Wetsuit & Zubehör")) {
+          eqToAdd.unshift(eqWetsuit);
+        } else if (eqWetsuit) {
+          // Move to front if already in list
+          const idx = eqToAdd.findIndex(e => e.title === "Wetsuit & Zubehör");
+          if (idx > 0) { eqToAdd.splice(idx, 1); eqToAdd.unshift(eqWetsuit); }
+        }
       }
       eqToAdd.forEach((eq, i) => {
         dayLessons.push({ ...eq, id: `${dayId}-eq${i}`, type: "equipment" });
@@ -181,10 +238,24 @@ function generateProgram(numDays, goalId, spotId, equipment) {
     }
 
     const theory = pickTheory(d);
-    if (theory) dayLessons.push({ ...theory, id: `${dayId}-t`, type: "theory" });
-
     const practice1 = pickPractice(d);
-    if (practice1) dayLessons.push({ ...practice1, id: `${dayId}-p1`, type: "practice" });
+
+    // Experience-based weighting: decide if this day gets theory or extra practice
+    const theoryRoll = seededRandom();
+    if (theoryRoll < ratio.t && theory) {
+      dayLessons.push({ ...theory, id: `${dayId}-t`, type: "theory" });
+      if (practice1) dayLessons.push({ ...practice1, id: `${dayId}-p1`, type: "practice" });
+    } else {
+      // Skip theory this day, add practice instead (more practice-heavy)
+      if (practice1) dayLessons.push({ ...practice1, id: `${dayId}-p1`, type: "practice" });
+      const extraPractice = pickPractice(d);
+      if (extraPractice && extraPractice.title !== practice1?.title) {
+        dayLessons.push({ ...extraPractice, id: `${dayId}-p-extra`, type: "practice" });
+      } else if (theory) {
+        // Fallback: add theory if no extra practice available
+        dayLessons.push({ ...theory, id: `${dayId}-t`, type: "theory" });
+      }
+    }
 
     if (days >= 7 && d % 2 === 0) {
       const practice2 = pickPractice(d);
@@ -200,9 +271,66 @@ function generateProgram(numDays, goalId, spotId, equipment) {
       }
     }
 
-    program.push({ day: d, lessons: dayLessons });
+    program.push({ day: d, lessons: dayLessons, focus: getDailyFocus(d, days, experience, spot) });
   }
-  return { program, goal, spot };
+
+  // Spot difficulty warning
+  const spotWarning = spot?.difficulty === "advanced"
+    ? `⚠️ ${spot.name} ist ein anspruchsvoller Spot. Respektiere den Ozean und kenne dein Limit.`
+    : null;
+
+  // Spot-specific extra tips based on wave type
+  const spotHints = [];
+  const wt = (spot?.waveType || "").toLowerCase();
+  if (wt.includes("riff") || wt.includes("reef")) {
+    spotHints.push("🪸 Riff-Spot: Trage Booties zum Schutz vor scharfem Riff. Checke die Tiefe bei Ebbe!");
+  }
+  if (wt.includes("beachbreak")) {
+    spotHints.push("🌊 Beachbreak: Achte besonders auf Strömungen (Rip Currents) – sie ändern sich mit den Sandbänken.");
+  }
+  if (wt.includes("pointbreak")) {
+    spotHints.push("🧭 Pointbreak: Respektiere die Lineup-Hierarchie. Paddle nicht vor Locals in die Welle.");
+  }
+
+  return { program, goal, spot, spotWarning, spotHints };
+}
+
+// Daily focus line based on experience + spot
+function getDailyFocus(dayNum, totalDays, experience, spot) {
+  const progress = dayNum / totalDays;
+  const wt = (spot?.waveType || "").toLowerCase();
+  const isReef = wt.includes("riff") || wt.includes("reef");
+  const isBeach = wt.includes("beachbreak");
+  const isPoint = wt.includes("pointbreak");
+
+  if (experience === "zero") {
+    if (dayNum === 1) return "Sicherheit: Ozean beobachten & Equipment kennenlernen";
+    if (isBeach && progress <= 0.3) return "Sicherheit: Strömungen erkennen";
+    if (isReef && progress <= 0.3) return "Reef Awareness: Tiefe & Booties Check";
+    if (progress <= 0.3) return "Board-Kontrolle & Whitewash-Wellen";
+    if (progress <= 0.7) return "Pop-Up festigen & erste Wellenritte";
+    return "Selbstständig Wellen fangen";
+  }
+  if (experience === "few") {
+    if (isReef) return progress <= 0.5 ? "Reef Awareness & Booties Check" : "Sicheres Paddeln über Riff";
+    if (isPoint) return progress <= 0.5 ? "Lineup-Positioning am Pointbreak" : "Wellen lesen & Timing";
+    if (progress <= 0.3) return "Paddle-Power & Pop-Up Konsistenz";
+    if (progress <= 0.7) return "Grüne Wellen anpaddeln";
+    return "Wellenauswahl & erste Rides";
+  }
+  if (experience === "some") {
+    if (isPoint) return progress <= 0.5 ? "Positioning im Lineup" : "Linie halten & Trimmen";
+    if (isReef) return progress <= 0.5 ? "Reef Navigation & Takeoff Timing" : "Bottom Turn am Reef";
+    if (progress <= 0.4) return "Green Wave Commitment";
+    if (progress <= 0.7) return "Bottom Turn & Linie";
+    return "Speed & Flow auf der Welle";
+  }
+  // regular
+  if (isPoint) return progress <= 0.5 ? "Speed Generation am Pointbreak" : "Cutback & Reentry";
+  if (isReef) return progress <= 0.5 ? "Barrel Approach & Positioning" : "Commitment in hohlen Wellen";
+  if (progress <= 0.4) return "Speed & Commitment";
+  if (progress <= 0.7) return "Manöver-Training: Cutback & Top Turn";
+  return "Flow-State: Alles zusammen bringen";
 }
 
 const VideoEmbed = ({ url }) => {
@@ -298,9 +426,9 @@ const LessonModal = ({ lesson, onClose, dm }) => {
 };
 
 const STORAGE_KEY = "soulsurf_data";
-function loadSaved() { try { const d = localStorage.getItem(STORAGE_KEY); return d ? JSON.parse(d) : null; } catch { return null; } }
-function saveData(data) { try { localStorage.setItem(STORAGE_KEY, JSON.stringify({ ...data, savedAt: new Date().toISOString() })); } catch {} }
-function clearData() { try { localStorage.removeItem(STORAGE_KEY); } catch {} }
+function loadSaved() { try { if (typeof localStorage === "undefined") return null; const d = localStorage.getItem(STORAGE_KEY); return d ? JSON.parse(d) : null; } catch { return null; } }
+function saveData(data) { try { if (typeof localStorage === "undefined") return; localStorage.setItem(STORAGE_KEY, JSON.stringify({ ...data, savedAt: new Date().toISOString() })); } catch {} }
+function clearData() { try { if (typeof localStorage === "undefined") return; localStorage.removeItem(STORAGE_KEY); } catch {} }
 
 export default function SurfApp() {
   const [screen, setScreen] = useState("home");
@@ -333,10 +461,14 @@ export default function SurfApp() {
     }
     setHydrated(true);
   }, []);
-  const [darkMode, setDarkMode] = useState(() => {
-    try { const s = localStorage.getItem("soulsurf_dark"); if (s !== null) return s === "true"; } catch {}
-    return window.matchMedia?.("(prefers-color-scheme: dark)").matches || false;
-  });
+  const [darkMode, setDarkMode] = useState(false);
+  useEffect(() => {
+    try {
+      const s = localStorage.getItem("soulsurf_dark");
+      if (s !== null) { setDarkMode(s === "true"); return; }
+    } catch {}
+    try { if (window.matchMedia?.("(prefers-color-scheme: dark)").matches) setDarkMode(true); } catch {}
+  }, []);
   const toggleDark = () => { const next = !darkMode; setDarkMode(next); try { localStorage.setItem("soulsurf_dark", String(next)); } catch {} };
   const dm = darkMode;
   const t = {
@@ -360,10 +492,22 @@ export default function SurfApp() {
   const savedSpot = hasSaved ? SURF_SPOTS.find(s => s.id === spot) : null;
   const savedGoal = hasSaved ? GOALS.find(g => g.id === goal) : null;
 
+  // Load Google Fonts via link element (works in Artifacts)
+  useEffect(() => {
+    try {
+      if (!document.querySelector('link[data-soulsurf-fonts]')) {
+        const link = document.createElement('link');
+        link.rel = 'stylesheet';
+        link.href = 'https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;800;900&family=Space+Mono:wght@400;700&family=DM+Sans:wght@400;500;600;700&display=swap';
+        link.setAttribute('data-soulsurf-fonts', 'true');
+        document.head.appendChild(link);
+      }
+    } catch {}
+  }, []);
+
   return (
     <>
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;800;900&family=Space+Mono:wght@400;700&family=DM+Sans:wght@400;500;600;700&display=swap');
         @keyframes slideUp { to { opacity: 1; transform: translateY(0); } }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         @keyframes float { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
@@ -394,7 +538,7 @@ export default function SurfApp() {
             <div onClick={() => setScreen("home")} style={{ cursor: "pointer", display: "flex", alignItems: "center", gap: 10 }}>
               <span style={{ fontSize: 28, animation: "float 3s ease-in-out infinite" }}>🏄</span>
               <div><h1 style={{ fontFamily: "'Playfair Display', serif", fontSize: 22, fontWeight: 900, color: t.text, lineHeight: 1 }}>Soul<span style={{ color: t.accent }}>Surf</span></h1>
-              <span style={{ fontFamily: "'Space Mono', monospace", fontSize: 9, color: t.text3, letterSpacing: "0.15em", textTransform: "uppercase" }}>ride the vibe ☮</span></div>
+              <span style={{ fontFamily: "'Space Mono', monospace", fontSize: 9, color: t.text3, letterSpacing: "0.15em", textTransform: "uppercase" }}>v2.2 · ride the vibe ☮</span></div>
             </div>
             <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
               <button onClick={toggleDark} style={{ background: dm ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.05)", border: "none", borderRadius: "50%", width: 36, height: 36, fontSize: 18, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }} title={dm ? "Light Mode" : "Dark Mode"}>{dm ? "☀️" : "🌙"}</button>
@@ -573,6 +717,20 @@ export default function SurfApp() {
                   </div>
                 </div>
               </div>
+              {program.spotWarning && (
+                <div style={{ background: dm ? "rgba(255,112,67,0.15)" : "#FFF3E0", border: `1px solid ${dm ? "rgba(255,112,67,0.3)" : "#FFB74D"}`, borderRadius: 14, padding: "12px 16px", marginBottom: 16, display: "flex", alignItems: "center", gap: 10 }}>
+                  <span style={{ fontSize: 20 }}>⚠️</span>
+                  <span style={{ fontSize: 13, fontWeight: 600, color: dm ? "#FFB74D" : "#E65100", lineHeight: 1.4 }}>{program.spotWarning.replace("⚠️ ", "")}</span>
+                </div>
+              )}
+              {program.spotHints && program.spotHints.length > 0 && (
+                <div style={{ background: dm ? "rgba(77,182,172,0.1)" : "#E0F2F1", border: `1px solid ${dm ? "rgba(77,182,172,0.2)" : "#B2DFDB"}`, borderRadius: 14, padding: "12px 16px", marginBottom: 16 }}>
+                  <div style={{ fontFamily: "'Space Mono', monospace", fontSize: 10, color: t.accent, textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 6 }}>Spot-Hinweise</div>
+                  {program.spotHints.map((hint, i) => (
+                    <div key={i} style={{ fontSize: 13, color: t.text2, marginBottom: i < program.spotHints.length - 1 ? 4 : 0, lineHeight: 1.4 }}>{hint}</div>
+                  ))}
+                </div>
+              )}
               {program.spot?.tips && (
                 <div style={{ background: t.card, borderRadius: 16, padding: "14px 18px", marginBottom: 20, border: `1px solid ${t.cardBorder}` }}>
                   <div style={{ fontFamily: "'Space Mono', monospace", fontSize: 11, color: "#5C6BC0", textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 8 }}>📍 Spot-Tipps: {program.spot.name}</div>
@@ -594,6 +752,7 @@ export default function SurfApp() {
                         <span style={{ background: "linear-gradient(135deg, #009688, #4DB6AC)", color: "white", borderRadius: 10, width: 36, height: 36, display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "'Space Mono', monospace", fontWeight: 700, fontSize: 13 }}>D{dayData.day}</span>
                         <div style={{ textAlign: "left" }}>
                           <div style={{ fontFamily: "'Playfair Display', serif", fontWeight: 700, fontSize: 15, color: t.text }}>Tag {dayData.day}{dayData.day === 1 && dayData.lessons.some(l => l.type === "equipment") ? " · Equipment" : ""}</div>
+                          {dayData.focus && <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 11, color: "#4DB6AC", fontWeight: 600, marginTop: 1 }}>🎯 {dayData.focus}</div>}
                           <div style={{ fontFamily: "'Space Mono', monospace", fontSize: 10, color: "#90A4AE" }}>{fl.length} Lektionen{fl.some(l => l.videoUrl) ? " · ▶ Videos" : ""}{fl.some(l => l.articleUrl) ? " · 📄" : ""}</div>
                         </div>
                       </div>
