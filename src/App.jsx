@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from "react";
-import { SURF_SPOTS, GOALS, BOARD_TYPES, EXPERIENCE_LEVELS, CONTENT_POOL, recommendBoard, SKILL_TREE, analyzeDiary, analyzeEntry } from './data.js';
+import { SURF_SPOTS, GOALS, BOARD_TYPES, EXPERIENCE_LEVELS, CONTENT_POOL, recommendBoard, SKILL_TREE, analyzeDiary, LOCAL_POIS, PACKING_LIST } from './data.js';
 import { generateProgram } from './generator.js';
 import { WaveBackground, LessonCard, LessonModal } from './components.jsx';
 import { useWeather, windDirLabel, weatherLabel, useSwell, swellRating } from './weather.js';
+import SpotMap from './SpotMap.jsx';
 
 const STORAGE_KEY = "soulsurf_data";
 function loadSaved() { try { if (typeof localStorage === "undefined") return null; const d = localStorage.getItem(STORAGE_KEY); return d ? JSON.parse(d) : null; } catch { return null; } }
@@ -67,6 +68,8 @@ export default function SurfApp() {
   const [showEquipment, setShowEquipment] = useState(false);
   const [eqWeight, setEqWeight] = useState(75);
   const [showSkillTree, setShowSkillTree] = useState(false);
+  const [tripDates, setTripDates] = useState({ start: "", end: "" });
+  const [tripChecked, setTripChecked] = useState({});
   const t = {
     bg: dm ? "#0f1419" : "#FFFDF7", bg2: dm ? "#1a2332" : "#FFF8E1", bg3: dm ? "#1e2d3d" : "#E0F2F1",
     card: dm ? "rgba(30,45,61,0.8)" : "rgba(255,255,255,0.8)", cardBorder: dm ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.05)",
@@ -364,7 +367,7 @@ export default function SurfApp() {
             <div onClick={() => setScreen("home")} style={{ cursor: "pointer", display: "flex", alignItems: "center", gap: 10 }}>
               <span style={{ fontSize: 28, animation: "float 3s ease-in-out infinite" }}>🏄</span>
               <div><h1 style={{ fontFamily: "'Playfair Display', serif", fontSize: 22, fontWeight: 900, color: t.text, lineHeight: 1 }}>Soul<span style={{ color: t.accent }}>Surf</span></h1>
-              <span style={{ fontFamily: "'Space Mono', monospace", fontSize: 9, color: t.text3, letterSpacing: "0.15em", textTransform: "uppercase" }}>v3.1 · ride the vibe ☮</span></div>
+              <span style={{ fontFamily: "'Space Mono', monospace", fontSize: 9, color: t.text3, letterSpacing: "0.15em", textTransform: "uppercase" }}>v3.2 · ride the vibe ☮</span></div>
             </div>
             <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
               <button onClick={toggleDark} style={{ background: dm ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.05)", border: "none", borderRadius: "50%", width: 36, height: 36, fontSize: 18, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }} title={dm ? "Light Mode" : "Dark Mode"}>{dm ? "☀️" : "🌙"}</button>
@@ -755,6 +758,58 @@ export default function SurfApp() {
                         </div>
                       );
                     })}
+                  </div>
+                </div>
+              )}
+              {/* Spot Map */}
+              <SpotMap spot={spotObj} pois={LOCAL_POIS[spot] || []} dm={dm} />
+              {/* Trip Planner */}
+              {spotObj && (
+                <div style={{ background: dm ? "rgba(30,45,61,0.8)" : "linear-gradient(135deg, #FFF3E0, #FFF8E1)", border: `1px solid ${dm ? "rgba(255,183,77,0.15)" : "#FFE0B2"}`, borderRadius: 16, padding: "14px 18px", marginBottom: 20 }}>
+                  <div style={{ fontFamily: "'Space Mono', monospace", fontSize: 10, color: dm ? "#FFB74D" : "#E65100", textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 10 }}>✈️ Trip planen · {spotObj.name}</div>
+                  <div style={{ display: "flex", gap: 10, marginBottom: 12 }}>
+                    <div style={{ flex: 1 }}>
+                      <label style={{ fontSize: 11, color: t.text2, display: "block", marginBottom: 3 }}>Hinflug</label>
+                      <input type="date" value={tripDates.start} onChange={e => setTripDates(p => ({ ...p, start: e.target.value }))} style={{ width: "100%", padding: "6px 8px", borderRadius: 8, border: `1px solid ${t.inputBorder}`, background: t.inputBg, color: t.text, fontSize: 12 }} />
+                    </div>
+                    <div style={{ flex: 1 }}>
+                      <label style={{ fontSize: 11, color: t.text2, display: "block", marginBottom: 3 }}>Rückflug</label>
+                      <input type="date" value={tripDates.end} onChange={e => setTripDates(p => ({ ...p, end: e.target.value }))} style={{ width: "100%", padding: "6px 8px", borderRadius: 8, border: `1px solid ${t.inputBorder}`, background: t.inputBg, color: t.text, fontSize: 12 }} />
+                    </div>
+                  </div>
+                  {tripDates.start && tripDates.end && (
+                    <div style={{ background: dm ? "rgba(0,150,136,0.1)" : "#E0F2F1", borderRadius: 10, padding: "8px 12px", marginBottom: 12, fontSize: 12, color: t.accent, fontWeight: 600 }}>
+                      🗓️ {Math.max(0, Math.ceil((new Date(tripDates.end) - new Date(tripDates.start)) / 86400000))} Tage · Saison: {spotObj.season} · Wasser: {spotObj.water} · Wetsuit: {spotObj.wetsuit === "none" ? "Keiner nötig" : spotObj.wetsuit}
+                    </div>
+                  )}
+                  <div style={{ fontFamily: "'Space Mono', monospace", fontSize: 10, color: t.text3, textTransform: "uppercase", marginBottom: 6 }}>Packliste</div>
+                  {[
+                    { label: "Essentiell", items: PACKING_LIST.essential },
+                    { label: "Empfohlen", items: PACKING_LIST.recommended },
+                  ].map(group => {
+                    const filtered = group.items.filter(item => !item.condition || item.condition(spotObj));
+                    if (filtered.length === 0) return null;
+                    return (
+                      <div key={group.label} style={{ marginBottom: 8 }}>
+                        <div style={{ fontSize: 11, fontWeight: 600, color: t.text2, marginBottom: 4 }}>{group.label}</div>
+                        <div style={{ display: "flex", flexWrap: "wrap", gap: 4 }}>
+                          {filtered.map(item => (
+                            <button key={item.id} onClick={() => setTripChecked(p => ({ ...p, [item.id]: !p[item.id] }))} style={{
+                              display: "flex", alignItems: "center", gap: 4, padding: "4px 10px", borderRadius: 8, fontSize: 11, cursor: "pointer",
+                              background: tripChecked[item.id] ? (dm ? "rgba(0,150,136,0.2)" : "#E0F2F1") : t.inputBg,
+                              border: `1px solid ${tripChecked[item.id] ? t.accent : t.inputBorder}`,
+                              color: tripChecked[item.id] ? t.accent : t.text2,
+                              textDecoration: tripChecked[item.id] ? "line-through" : "none", opacity: tripChecked[item.id] ? 0.7 : 1,
+                            }}>
+                              {item.emoji} {item.label}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    );
+                  })}
+                  <div style={{ fontSize: 11, color: t.text3, marginTop: 6 }}>
+                    ✓ {Object.values(tripChecked).filter(Boolean).length} / {[...PACKING_LIST.essential, ...PACKING_LIST.recommended].filter(i => !i.condition || i.condition(spotObj)).length} eingepackt
                   </div>
                 </div>
               )}

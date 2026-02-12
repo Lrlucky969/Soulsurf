@@ -21,6 +21,85 @@ export const SURF_SPOTS = [
   { id: "siargao", name: "Siargao, Philippinen", emoji: "🏄", difficulty: "intermediate", waveType: "Cloud 9 Riffwellen", breakType: "reef", hazards: ["reef", "current"], season: "Aug–Nov", water: "28°C", wetsuit: "none", lat: 9.85, lng: 126.16, tips: ["Cloud 9 ist weltberühmt – kräftige, hohle Rechtswelle", "Für Anfänger: Jacking Horse oder Stimpy's", "Tropenparadies – Palmen, türkises Wasser, entspannte Vibes"] },
 ];
 
+// Sprint 11: Local Points of Interest per spot
+export const LOCAL_POIS = {
+  bali: [
+    { name: "Rip Curl School of Surf", type: "school", lat: -8.722, lng: 115.169, desc: "Offizielle Rip-Curl-Surfschule am Kuta Beach" },
+    { name: "Drifter Surf Shop", type: "shop", lat: -8.651, lng: 115.138, desc: "Premium Surfshop in Canggu mit Board-Rental" },
+    { name: "Kuta Beach", type: "spot", lat: -8.718, lng: 115.168, desc: "Anfänger-Spot mit sanften Wellen" },
+    { name: "Padang Padang", type: "spot", lat: -8.815, lng: 115.098, desc: "Berühmter Riff-Spot, nur für Erfahrene" },
+  ],
+  portugal: [
+    { name: "Surf Guide Algarve", type: "school", lat: 37.29, lng: -8.86, desc: "Geführte Surf-Sessions an den besten Spots" },
+    { name: "Amado Surfcamp", type: "school", lat: 37.17, lng: -8.90, desc: "Surfcamp direkt am Praia do Amado" },
+    { name: "Aljezur Surf Shop", type: "shop", lat: 37.32, lng: -8.80, desc: "Lokaler Shop mit Boards, Wetsuits & Repair" },
+    { name: "Praia da Arrifana", type: "spot", lat: 37.29, lng: -8.87, desc: "Geschützter Beachbreak, ideal für Anfänger" },
+    { name: "Praia do Amado", type: "spot", lat: 37.17, lng: -8.90, desc: "Konstanter Beachbreak, viele Surfschulen" },
+  ],
+  hawaii: [
+    { name: "Hans Hedemann Surf School", type: "school", lat: 21.276, lng: -157.827, desc: "Legendäre Surfschule in Waikiki seit 1994" },
+    { name: "Hawaiian South Shore", type: "shop", lat: 21.282, lng: -157.834, desc: "Lokaler Surfshop in Honolulu" },
+    { name: "Waikiki Beach", type: "spot", lat: 21.276, lng: -157.827, desc: "Sanfte Longboard-Wellen, perfekt für Anfänger" },
+    { name: "Pipeline", type: "spot", lat: 21.665, lng: -158.054, desc: "Weltberühmte Barrel – nur für Profis!" },
+  ],
+  costarica: [
+    { name: "Witch's Rock Surf Camp", type: "school", lat: 10.30, lng: -85.84, desc: "All-inclusive Surfcamp in Tamarindo" },
+    { name: "Surf Shop Tamarindo", type: "shop", lat: 10.30, lng: -85.84, desc: "Board-Rental und Zubehör" },
+    { name: "Playa Tamarindo", type: "spot", lat: 10.30, lng: -85.84, desc: "Konsistenter Beachbreak für alle Levels" },
+  ],
+  france: [
+    { name: "Rip Curl Surf School Hossegor", type: "school", lat: 43.66, lng: -1.44, desc: "Top-Surfschule an der französischen Atlantikküste" },
+    { name: "Boardriders Hossegor", type: "shop", lat: 43.66, lng: -1.44, desc: "Quiksilver/Roxy Flagship mit allem Equipment" },
+    { name: "La Gravière", type: "spot", lat: 43.64, lng: -1.44, desc: "Einer der besten Beachbreaks Europas" },
+  ],
+  morocco: [
+    { name: "Surf Berbere", type: "school", lat: 30.54, lng: -9.71, desc: "Bekanntes Surfcamp in Taghazout" },
+    { name: "Dynamic Loisirs", type: "shop", lat: 30.54, lng: -9.71, desc: "Lokaler Shop mit Board-Rental" },
+    { name: "Anchor Point", type: "spot", lat: 30.55, lng: -9.72, desc: "Legendärer Rechts-Pointbreak" },
+  ],
+  australia: [
+    { name: "Get Wet Surf School", type: "school", lat: -28.17, lng: 153.53, desc: "Surfschule am Surfers Paradise Beach" },
+    { name: "Snapper Rocks", type: "spot", lat: -28.17, lng: 153.55, desc: "Weltklasse Pointbreak, Superbank" },
+    { name: "Kirra Surf", type: "shop", lat: -28.16, lng: 153.51, desc: "Lokaler Surfshop in Coolangatta" },
+  ],
+  srilanka: [
+    { name: "Surf School Sri Lanka", type: "school", lat: 5.97, lng: 80.43, desc: "Surfunterricht in Weligama Bay" },
+    { name: "Weligama Bay", type: "spot", lat: 5.97, lng: 80.43, desc: "Sanfte Wellen, perfekt für Anfänger" },
+    { name: "Arugam Bay", type: "spot", lat: 6.84, lng: 81.83, desc: "Langer Rechts-Pointbreak" },
+  ],
+  canary: [
+    { name: "Flag Beach Fuerteventura", type: "school", lat: 28.73, lng: -13.86, desc: "Surfschule am Flag Beach, Corralejo" },
+    { name: "Quemao Surf Shop", type: "shop", lat: 28.74, lng: -13.86, desc: "Surfshop mit Board-Rental in Corralejo" },
+  ],
+  ericeira: [
+    { name: "Ericeira Surf School", type: "school", lat: 38.96, lng: -9.42, desc: "Im Herzen der World Surf Reserve" },
+    { name: "Ribeira d'Ilhas", type: "spot", lat: 38.98, lng: -9.42, desc: "Bekanntester Spot in Ericeira" },
+    { name: "58 Surf Shop", type: "shop", lat: 38.96, lng: -9.42, desc: "Lokaler Shop in der Altstadt" },
+  ],
+};
+
+// Trip packing checklist
+export const PACKING_LIST = {
+  essential: [
+    { id: "board", label: "Surfboard / Board-Rental buchen", emoji: "🏄" },
+    { id: "wetsuit", label: "Neoprenanzug", emoji: "🧤", condition: (spot) => spot?.wetsuit !== "none" },
+    { id: "leash", label: "Leash", emoji: "🔗" },
+    { id: "wax", label: "Wax (passend zur Temperatur)", emoji: "🕯️" },
+    { id: "sunscreen", label: "Reef-safe Sonnencreme", emoji: "☀️" },
+    { id: "water", label: "Trinkwasser", emoji: "💧" },
+  ],
+  recommended: [
+    { id: "booties", label: "Booties", emoji: "👟", condition: (spot) => spot?.breakType === "reef" },
+    { id: "rashguard", label: "Rashguard / Lycra", emoji: "👕" },
+    { id: "towel", label: "Handtuch / Poncho", emoji: "🏖️" },
+    { id: "firstaid", label: "Erste-Hilfe-Kit", emoji: "🩹" },
+    { id: "camera", label: "GoPro / Wasserdichte Kamera", emoji: "📷" },
+    { id: "earplugs", label: "Surf-Ohrstöpsel", emoji: "👂" },
+    { id: "boardbag", label: "Boardbag (Transport)", emoji: "💼" },
+    { id: "repair", label: "Solarez / Ding-Repair", emoji: "🔧" },
+  ],
+};
+
 export const GOALS = [
   { id: "erste-welle", name: "Erste Welle stehen", emoji: "🌊", level: "beginner" },
   { id: "grune-wellen", name: "Grüne Wellen surfen", emoji: "🟢", level: "intermediate" },
