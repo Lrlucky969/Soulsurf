@@ -116,3 +116,68 @@ export function weatherLabel(code) {
   if (code <= 99) return { emoji: "⛈️", label: "Gewitter" };
   return { emoji: "❓", label: "Unbekannt" };
 }
+
+// C2: Swell/Marine Forecast via Open-Meteo Marine API
+const SWELL_CACHE_KEY = "soulsurf_swell";
+
+export function useSwell(spot) {
+  const [swell, setSwell] = useState(null);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (!spot?.lat || !spot?.lng) return;
+
+    // Check cache
+    try {
+      const raw = localStorage.getItem(SWELL_CACHE_KEY);
+      if (raw) {
+        const cache = JSON.parse(raw);
+        const entry = cache[spot.id];
+        if (entry && Date.now() - entry.ts < CACHE_TTL) { setSwell(entry.data); return; }
+      }
+    } catch {}
+
+    let cancelled = false;
+    setLoading(true);
+
+    const url = `https://marine-api.open-meteo.com/v1/marine?latitude=${spot.lat}&longitude=${spot.lng}&daily=wave_height_max,wave_period_max,wave_direction_dominant&timezone=auto&forecast_days=5`;
+
+    fetch(url)
+      .then(r => { if (!r.ok) throw new Error("Swell fetch failed"); return r.json(); })
+      .then(data => {
+        if (cancelled) return;
+        const result = (data.daily?.time || []).map((date, i) => ({
+          date,
+          waveHeight: data.daily.wave_height_max?.[i],
+          wavePeriod: data.daily.wave_period_max?.[i],
+          waveDir: data.daily.wave_direction_dominant?.[i],
+        }));
+        setSwell(result);
+        // Cache
+        try {
+          const raw = localStorage.getItem(SWELL_CACHE_KEY);
+          const cache = raw ? JSON.parse(raw) : {};
+          cache[spot.id] = { data: result, ts: Date.now() };
+          localStorage.setItem(SWELL_CACHE_KEY, JSON.stringify(cache));
+        } catch {}
+        setLoading(false);
+      })
+      .catch(() => { if (!cancelled) setLoading(false); });
+
+    return () => { cancelled = true; };
+  }, [spot?.id, spot?.lat, spot?.lng]);
+
+  return { swell, loading };
+}
+
+// Swell quality rating
+export function swellRating(height, period) {
+  if (height == null || period == null) return null;
+  if (height < 0.3) return { emoji: "😴", label: "Flat", color: "#90A4AE" };
+  if (height <= 0.8 && period >= 8) return { emoji: "😊", label: "Fun", color: "#4DB6AC" };
+  if (height <= 1.5 && period >= 10) return { emoji: "🤙", label: "Gut", color: "#66BB6A" };
+  if (height <= 2.5 && period >= 10) return { emoji: "🔥", label: "Stark", color: "#FFA726" };
+  if (height > 2.5) return { emoji: "⚠️", label: "Groß", color: "#EF5350" };
+  if (period < 8) return { emoji: "😐", label: "Windswell", color: "#FFB74D" };
+  return { emoji: "🌊", label: "Okay", color: "#42A5F5" };
+}

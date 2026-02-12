@@ -1,8 +1,8 @@
-import { useState, useEffect } from "react";
-import { SURF_SPOTS, GOALS, BOARD_TYPES, EXPERIENCE_LEVELS, CONTENT_POOL } from './data.js';
+import React, { useState, useEffect } from "react";
+import { SURF_SPOTS, GOALS, BOARD_TYPES, EXPERIENCE_LEVELS, CONTENT_POOL, recommendBoard, SKILL_TREE } from './data.js';
 import { generateProgram } from './generator.js';
 import { WaveBackground, LessonCard, LessonModal } from './components.jsx';
-import { useWeather, windDirLabel, weatherLabel } from './weather.js';
+import { useWeather, windDirLabel, weatherLabel, useSwell, swellRating } from './weather.js';
 
 const STORAGE_KEY = "soulsurf_data";
 function loadSaved() { try { if (typeof localStorage === "undefined") return null; const d = localStorage.getItem(STORAGE_KEY); return d ? JSON.parse(d) : null; } catch { return null; } }
@@ -30,6 +30,8 @@ export default function SurfApp() {
   const [diaryOpen, setDiaryOpen] = useState(null);
   const [importMsg, setImportMsg] = useState(null);
   const [surfDays, setSurfDays] = useState([]);
+  const [voiceField, setVoiceField] = useState(null); // { day, key } currently recording
+  const [diaryPhotos, setDiaryPhotos] = useState({}); // { [dayNum]: [{ id, thumb }] }
 
   // SSR-safe: load saved data after mount
   useEffect(() => {
@@ -61,6 +63,10 @@ export default function SurfApp() {
   const dm = darkMode;
   const spotObj = SURF_SPOTS.find(s => s.id === spot);
   const { weather, loading: weatherLoading } = useWeather(screen === "program" ? spotObj : null);
+  const { swell, loading: swellLoading } = useSwell(screen === "program" ? spotObj : null);
+  const [showEquipment, setShowEquipment] = useState(false);
+  const [eqWeight, setEqWeight] = useState(75);
+  const [showSkillTree, setShowSkillTree] = useState(false);
   const t = {
     bg: dm ? "#0f1419" : "#FFFDF7", bg2: dm ? "#1a2332" : "#FFF8E1", bg3: dm ? "#1e2d3d" : "#E0F2F1",
     card: dm ? "rgba(30,45,61,0.8)" : "rgba(255,255,255,0.8)", cardBorder: dm ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.05)",
@@ -120,9 +126,121 @@ export default function SurfApp() {
     });
   };
 
+  // A3: IndexedDB for photos
+  const dbRef = React.useRef(null);
+  const getDB = () => new Promise((resolve, reject) => {
+    if (dbRef.current) return resolve(dbRef.current);
+    const req = indexedDB.open("soulsurf_photos", 1);
+    req.onupgradeneeded = (e) => { e.target.result.createObjectStore("photos", { keyPath: "id" }); };
+    req.onsuccess = (e) => { dbRef.current = e.target.result; resolve(e.target.result); };
+    req.onerror = () => reject(new Error("IndexedDB failed"));
+  });
+
+  const loadPhotos = async (dayNum) => {
+    try {
+      const db = await getDB();
+      const tx = db.transaction("photos", "readonly");
+      const store = tx.objectStore("photos");
+      return new Promise((resolve) => {
+        const req = store.getAll();
+        req.onsuccess = () => resolve(req.result.filter(p => p.day === dayNum));
+        req.onerror = () => resolve([]);
+      });
+    } catch { return []; }
+  };
+
+  const addPhoto = async (dayNum, file) => {
+    try {
+      const db = await getDB();
+      const id = `photo-${dayNum}-${Date.now()}`;
+      // Create thumbnail
+      const thumb = await new Promise((resolve) => {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          const img = new Image();
+          img.onload = () => {
+            const canvas = document.createElement("canvas");
+            const size = 120;
+            canvas.width = size;
+            canvas.height = size;
+            const ctx = canvas.getContext("2d");
+            const minDim = Math.min(img.width, img.height);
+            const sx = (img.width - minDim) / 2;
+            const sy = (img.height - minDim) / 2;
+            ctx.drawImage(img, sx, sy, minDim, minDim, 0, 0, size, size);
+            resolve(canvas.toDataURL("image/jpeg", 0.7));
+          };
+          img.src = e.target.result;
+        };
+        reader.readAsDataURL(file);
+      });
+      const arrayBuf = await file.arrayBuffer();
+      const tx = db.transaction("photos", "readwrite");
+      tx.objectStore("photos").put({ id, day: dayNum, blob: arrayBuf, thumb, name: file.name, ts: Date.now() });
+      await new Promise((res, rej) => { tx.oncomplete = res; tx.onerror = rej; });
+      refreshPhotos(dayNum);
+    } catch (e) { console.error("Photo save failed:", e); }
+  };
+
+  const deletePhoto = async (photoId, dayNum) => {
+    try {
+      const db = await getDB();
+      const tx = db.transaction("photos", "readwrite");
+      tx.objectStore("photos").delete(photoId);
+      await new Promise((res, rej) => { tx.oncomplete = res; tx.onerror = rej; });
+      refreshPhotos(dayNum);
+    } catch (e) { console.error("Photo delete failed:", e); }
+  };
+
+  const refreshPhotos = async (dayNum) => {
+    const photos = await loadPhotos(dayNum);
+    setDiaryPhotos(prev => ({ ...prev, [dayNum]: photos.map(p => ({ id: p.id, thumb: p.thumb, name: p.name })) }));
+  };
+
+  // Load photos when diary opens
+  useEffect(() => {
+    if (diaryOpen) refreshPhotos(diaryOpen);
+  }, [diaryOpen]);
+
+  // A4: Voice-to-text
+  const voiceRecRef = React.useRef(null);
+  const startVoice = (dayNum, fieldKey) => {
+    const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SR) return;
+    if (voiceField) { stopVoice(); return; }
+    const rec = new SR();
+    rec.lang = "de-DE";
+    rec.continuous = true;
+    rec.interimResults = true;
+    let finalText = diary[dayNum]?.[fieldKey] || "";
+    let interim = "";
+    rec.onresult = (e) => {
+      interim = "";
+      let newFinal = "";
+      for (let i = 0; i < e.results.length; i++) {
+        if (e.results[i].isFinal) newFinal += e.results[i][0].transcript;
+        else interim = e.results[i][0].transcript;
+      }
+      if (newFinal) {
+        finalText = finalText + (finalText ? " " : "") + newFinal;
+        updateDiary(dayNum, fieldKey, finalText);
+      }
+    };
+    rec.onerror = () => { setVoiceField(null); };
+    rec.onend = () => { setVoiceField(null); voiceRecRef.current = null; };
+    rec.start();
+    voiceRecRef.current = rec;
+    setVoiceField({ day: dayNum, key: fieldKey });
+  };
+  const stopVoice = () => {
+    if (voiceRecRef.current) { voiceRecRef.current.stop(); voiceRecRef.current = null; }
+    setVoiceField(null);
+  };
+  const hasSpeechAPI = typeof window !== "undefined" && (window.SpeechRecognition || window.webkitSpeechRecognition);
+
   const exportData = () => {
     try {
-      const data = { days, goal, spot, board, experience, equipment: { board, experience }, completed, diary, activeDay, surfDays, exportedAt: new Date().toISOString(), version: "2.6" };
+      const data = { days, goal, spot, board, experience, equipment: { board, experience }, completed, diary, activeDay, surfDays, exportedAt: new Date().toISOString(), version: "3.0" };
       const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
@@ -165,6 +283,33 @@ export default function SurfApp() {
   const hasSaved = hydrated && program !== null && days && goal && spot;
   const total = program?.program?.reduce((s, d) => s + d.lessons.length, 0) || 0;
   const done = Object.values(completed).filter(Boolean).length;
+  const diaryCount = Object.keys(diary).filter(k => {
+    const e = diary[k];
+    return e && (e.whatWorked || e.whatFailed || e.notes || e.mood);
+  }).length;
+
+  // Badge system
+  const BADGES = [
+    // Lektionen
+    { id: "lessons-10", emoji: "📗", name: "Paddler", desc: "10 Lektionen abgeschlossen", cat: "lessons", threshold: 10 },
+    { id: "lessons-25", emoji: "📘", name: "Wave Catcher", desc: "25 Lektionen abgeschlossen", cat: "lessons", threshold: 25 },
+    { id: "lessons-50", emoji: "📕", name: "Shredder", desc: "50 Lektionen abgeschlossen", cat: "lessons", threshold: 50 },
+    // Diary
+    { id: "diary-3", emoji: "✏️", name: "Tagebuch-Starter", desc: "3 Tagebuch-Einträge", cat: "diary", threshold: 3 },
+    { id: "diary-7", emoji: "📓", name: "Reflector", desc: "7 Tagebuch-Einträge", cat: "diary", threshold: 7 },
+    { id: "diary-14", emoji: "📖", name: "Soul Surfer", desc: "14 Tagebuch-Einträge", cat: "diary", threshold: 14 },
+  ];
+  const earnedBadges = BADGES.filter(b => {
+    if (b.cat === "lessons") return done >= b.threshold;
+    if (b.cat === "diary") return diaryCount >= b.threshold;
+    return false;
+  });
+  const nextBadge = BADGES.find(b => {
+    if (b.cat === "lessons") return done < b.threshold;
+    if (b.cat === "diary") return diaryCount < b.threshold;
+    return true;
+  });
+
   const spots = SURF_SPOTS.filter(s => s.name.toLowerCase().includes(spotSearch.toLowerCase()) || s.waveType.toLowerCase().includes(spotSearch.toLowerCase()));
   const savedSpot = hasSaved ? SURF_SPOTS.find(s => s.id === spot) : null;
   const savedGoal = hasSaved ? GOALS.find(g => g.id === goal) : null;
@@ -189,6 +334,7 @@ export default function SurfApp() {
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         @keyframes float { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
         @keyframes wave { 0% { transform: rotate(0deg); } 25% { transform: rotate(20deg); } 75% { transform: rotate(-15deg); } 100% { transform: rotate(0deg); } }
+        @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.5; } }
         * { box-sizing: border-box; margin: 0; padding: 0; }
         html { height: -webkit-fill-available; }
         body { min-height: 100vh; min-height: -webkit-fill-available; }
@@ -215,7 +361,7 @@ export default function SurfApp() {
             <div onClick={() => setScreen("home")} style={{ cursor: "pointer", display: "flex", alignItems: "center", gap: 10 }}>
               <span style={{ fontSize: 28, animation: "float 3s ease-in-out infinite" }}>🏄</span>
               <div><h1 style={{ fontFamily: "'Playfair Display', serif", fontSize: 22, fontWeight: 900, color: t.text, lineHeight: 1 }}>Soul<span style={{ color: t.accent }}>Surf</span></h1>
-              <span style={{ fontFamily: "'Space Mono', monospace", fontSize: 9, color: t.text3, letterSpacing: "0.15em", textTransform: "uppercase" }}>v2.7 · ride the vibe ☮</span></div>
+              <span style={{ fontFamily: "'Space Mono', monospace", fontSize: 9, color: t.text3, letterSpacing: "0.15em", textTransform: "uppercase" }}>v3.0 · ride the vibe ☮</span></div>
             </div>
             <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
               <button onClick={toggleDark} style={{ background: dm ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.05)", border: "none", borderRadius: "50%", width: 36, height: 36, fontSize: 18, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }} title={dm ? "Light Mode" : "Dark Mode"}>{dm ? "☀️" : "🌙"}</button>
@@ -430,6 +576,43 @@ export default function SurfApp() {
                   )}
                 </div>
               </div>
+              {/* Badges */}
+              {(earnedBadges.length > 0 || nextBadge) && (
+                <div style={{ background: dm ? "rgba(30,45,61,0.8)" : "linear-gradient(135deg, #FFF8E1, #FFF3E0)", border: `1px solid ${dm ? "rgba(255,183,77,0.15)" : "#FFE0B2"}`, borderRadius: 16, padding: "14px 18px", marginBottom: 20 }}>
+                  <div style={{ fontFamily: "'Space Mono', monospace", fontSize: 10, color: dm ? "#FFB74D" : "#E65100", textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 10 }}>🏆 Badges</div>
+                  <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: nextBadge ? 10 : 0 }}>
+                    {earnedBadges.map(b => (
+                      <div key={b.id} title={b.desc} style={{ display: "flex", alignItems: "center", gap: 6, background: dm ? "rgba(255,183,77,0.15)" : "rgba(255,183,77,0.2)", borderRadius: 10, padding: "6px 12px", border: `1px solid ${dm ? "rgba(255,183,77,0.3)" : "#FFB74D"}` }}>
+                        <span style={{ fontSize: 18 }}>{b.emoji}</span>
+                        <div>
+                          <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, fontWeight: 700, color: dm ? "#e8eaed" : "#4E342E" }}>{b.name}</div>
+                          <div style={{ fontFamily: "'Space Mono', monospace", fontSize: 9, color: dm ? "#9aa0a6" : "#8D6E63" }}>{b.desc}</div>
+                        </div>
+                      </div>
+                    ))}
+                    {BADGES.filter(b => !earnedBadges.includes(b)).map(b => {
+                      const progress = b.cat === "lessons" ? done / b.threshold : diaryCount / b.threshold;
+                      return (
+                        <div key={b.id} title={b.desc} style={{ display: "flex", alignItems: "center", gap: 6, background: dm ? "rgba(255,255,255,0.03)" : "rgba(0,0,0,0.03)", borderRadius: 10, padding: "6px 12px", border: `1px dashed ${dm ? "#2d3f50" : "#CFD8DC"}`, opacity: 0.5 }}>
+                          <span style={{ fontSize: 18, filter: "grayscale(1)" }}>{b.emoji}</span>
+                          <div>
+                            <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, fontWeight: 600, color: dm ? "#5f6368" : "#90A4AE" }}>{b.name}</div>
+                            <div style={{ fontFamily: "'Space Mono', monospace", fontSize: 9, color: dm ? "#5f6368" : "#B0BEC5" }}>{Math.round(progress * 100)}%</div>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                  {nextBadge && (
+                    <div style={{ display: "flex", alignItems: "center", gap: 8, paddingTop: 8, borderTop: `1px dashed ${dm ? "#2d3f50" : "#FFE0B2"}` }}>
+                      <span style={{ fontSize: 12 }}>🎯</span>
+                      <span style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 11, color: dm ? "#9aa0a6" : "#8D6E63" }}>
+                        Nächstes: <strong style={{ color: dm ? "#FFB74D" : "#E65100" }}>{nextBadge.name}</strong> – {nextBadge.cat === "lessons" ? `noch ${nextBadge.threshold - done} Lektionen` : `noch ${nextBadge.threshold - diaryCount} Einträge`}
+                      </span>
+                    </div>
+                  )}
+                </div>
+              )}
               {program.spotWarning && (
                 <div style={{ background: dm ? "rgba(255,112,67,0.15)" : "#FFF3E0", border: `1px solid ${dm ? "rgba(255,112,67,0.3)" : "#FFB74D"}`, borderRadius: 14, padding: "12px 16px", marginBottom: 16, display: "flex", alignItems: "center", gap: 10 }}>
                   <span style={{ fontSize: 20 }}>⚠️</span>
@@ -489,6 +672,35 @@ export default function SurfApp() {
                   <span style={{ fontSize: 12, color: dm ? "#9aa0a6" : "#546E7A" }}>🌤️ Wetter wird geladen...</span>
                 </div>
               )}
+              {/* Swell Forecast */}
+              {swell && swell.length > 0 && (
+                <div style={{ background: dm ? "rgba(30,45,61,0.8)" : "linear-gradient(135deg, #E8EAF6, #E3F2FD)", border: `1px solid ${dm ? "rgba(121,134,203,0.2)" : "#C5CAE9"}`, borderRadius: 16, padding: "14px 18px", marginBottom: 20 }}>
+                  <div style={{ fontFamily: "'Space Mono', monospace", fontSize: 10, color: dm ? "#7986CB" : "#3949AB", textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 10 }}>🌊 Swell Forecast · 5 Tage</div>
+                  <div style={{ display: "flex", gap: 6, overflowX: "auto" }}>
+                    {swell.map((day, i) => {
+                      const rating = swellRating(day.waveHeight, day.wavePeriod);
+                      return (
+                        <div key={i} style={{ flex: "0 0 auto", minWidth: 72, background: dm ? "rgba(255,255,255,0.05)" : "rgba(255,255,255,0.8)", borderRadius: 10, padding: "8px 8px", textAlign: "center" }}>
+                          <div style={{ fontFamily: "'Space Mono', monospace", fontSize: 10, color: dm ? "#9aa0a6" : "#78909C", marginBottom: 3 }}>
+                            {new Date(day.date + "T00:00:00").toLocaleDateString("de-DE", { weekday: "short", day: "numeric" })}
+                          </div>
+                          {rating && <div style={{ fontSize: 16, marginBottom: 2 }}>{rating.emoji}</div>}
+                          <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, fontWeight: 700, color: rating?.color || t.text }}>{day.waveHeight != null ? `${day.waveHeight.toFixed(1)}m` : "–"}</div>
+                          <div style={{ fontFamily: "'Space Mono', monospace", fontSize: 9, color: dm ? "#9aa0a6" : "#90A4AE" }}>
+                            {day.wavePeriod != null ? `${Math.round(day.wavePeriod)}s` : ""} {day.waveDir != null ? windDirLabel(day.waveDir) : ""}
+                          </div>
+                          {rating && <div style={{ fontSize: 9, color: rating.color, fontWeight: 600, marginTop: 1 }}>{rating.label}</div>}
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+              {/* Quick action buttons */}
+              <div style={{ display: "flex", gap: 8, marginBottom: 16 }}>
+                <button onClick={() => setShowEquipment(true)} style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", gap: 6, background: dm ? "rgba(30,45,61,0.8)" : "#F5F5F5", border: `1px solid ${t.inputBorder}`, borderRadius: 12, padding: "10px 12px", cursor: "pointer", fontSize: 12, fontWeight: 600, color: t.text2 }}>🏄 Board-Berater</button>
+                <button onClick={() => setShowSkillTree(true)} style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", gap: 6, background: dm ? "rgba(30,45,61,0.8)" : "#F5F5F5", border: `1px solid ${t.inputBorder}`, borderRadius: 12, padding: "10px 12px", cursor: "pointer", fontSize: 12, fontWeight: 600, color: t.text2 }}>🌳 Skill Tree</button>
+              </div>
               <div style={{ display: "flex", gap: 8, marginBottom: 18, flexWrap: "wrap" }}>
                 {[{ k: "all", l: "Alle", e: "📚" }, { k: "equipment", l: "Equipment", e: "🎒" }, { k: "warmup", l: "Warm-Up", e: "🔥" }, { k: "theory", l: "Theorie", e: "📖" }, { k: "practice", l: "Praxis", e: "🏄" }].map(f => (
                   <button key={f.k} onClick={() => setFilter(f.k)} style={{ background: filter === f.k ? (dm ? "#4DB6AC" : "#263238") : t.inputBg, color: filter === f.k ? "white" : t.text2, border: `1px solid ${filter === f.k ? (dm ? "#4DB6AC" : "#263238") : t.inputBorder}`, borderRadius: 20, padding: "7px 14px", fontSize: 13, fontWeight: 600, cursor: "pointer" }}>{f.e} {f.l}</button>
@@ -548,13 +760,20 @@ export default function SurfApp() {
                                 { key: "notes", label: "Notizen", icon: "📝", placeholder: "Wellen, Stimmung, Wetter, Erlebnisse..." },
                               ].map(field => (
                                 <div key={field.key} style={{ marginBottom: 12 }}>
-                                  <label style={{ display: "block", fontFamily: "'DM Sans', sans-serif", fontSize: 12, fontWeight: 600, color: t.text2, marginBottom: 4 }}>{field.icon} {field.label}</label>
+                                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 4 }}>
+                                    <label style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 12, fontWeight: 600, color: t.text2 }}>{field.icon} {field.label}</label>
+                                    {hasSpeechAPI && (
+                                      <button onClick={() => startVoice(dayData.day, field.key)} style={{ background: voiceField?.day === dayData.day && voiceField?.key === field.key ? "#EF5350" : (dm ? "rgba(255,255,255,0.08)" : "#F5F5F5"), border: `1px solid ${voiceField?.day === dayData.day && voiceField?.key === field.key ? "#EF5350" : t.inputBorder}`, borderRadius: 8, padding: "3px 8px", cursor: "pointer", fontSize: 12, color: voiceField?.day === dayData.day && voiceField?.key === field.key ? "white" : t.text3, transition: "all 0.2s ease", animation: voiceField?.day === dayData.day && voiceField?.key === field.key ? "pulse 1s infinite" : "none" }}>
+                                        {voiceField?.day === dayData.day && voiceField?.key === field.key ? "⏹ Stop" : "🎤"}
+                                      </button>
+                                    )}
+                                  </div>
                                   <textarea
                                     value={diary[dayData.day]?.[field.key] || ""}
                                     onChange={e => updateDiary(dayData.day, field.key, e.target.value)}
                                     placeholder={field.placeholder}
                                     rows={field.key === "notes" ? 3 : 2}
-                                    style={{ width: "100%", padding: "10px 12px", borderRadius: 10, border: `1px solid ${t.inputBorder}`, background: t.inputBg, color: t.text, fontSize: 13, fontFamily: "'DM Sans', sans-serif", resize: "vertical", lineHeight: 1.5 }}
+                                    style={{ width: "100%", padding: "10px 12px", borderRadius: 10, border: `1px solid ${voiceField?.day === dayData.day && voiceField?.key === field.key ? "#EF5350" : t.inputBorder}`, background: t.inputBg, color: t.text, fontSize: 13, fontFamily: "'DM Sans', sans-serif", resize: "vertical", lineHeight: 1.5, transition: "border-color 0.2s ease" }}
                                   />
                                 </div>
                               ))}
@@ -605,6 +824,29 @@ export default function SurfApp() {
                                   </div>
                                 </div>
                               </div>
+                              {/* A3: Photos */}
+                              <div style={{ borderTop: `1px dashed ${dm ? "#2d3f50" : "#E0E0E0"}`, paddingTop: 12, marginTop: 4, marginBottom: 12 }}>
+                                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 8 }}>
+                                  <span style={{ fontFamily: "'Space Mono', monospace", fontSize: 10, color: t.accent, textTransform: "uppercase", letterSpacing: "0.1em" }}>📷 Fotos</span>
+                                  <label style={{ display: "flex", alignItems: "center", gap: 4, background: dm ? "rgba(255,255,255,0.08)" : "#F5F5F5", border: `1px solid ${t.inputBorder}`, borderRadius: 8, padding: "4px 10px", cursor: "pointer", fontSize: 11, fontWeight: 600, color: t.text2 }}>
+                                    📷 Foto hinzufügen
+                                    <input type="file" accept="image/*" capture="environment" style={{ display: "none" }} onChange={e => { if (e.target.files?.[0]) addPhoto(dayData.day, e.target.files[0]); e.target.value = ""; }} />
+                                  </label>
+                                </div>
+                                {diaryPhotos[dayData.day]?.length > 0 && (
+                                  <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+                                    {diaryPhotos[dayData.day].map(photo => (
+                                      <div key={photo.id} style={{ position: "relative", borderRadius: 10, overflow: "hidden", width: 80, height: 80, border: `1px solid ${t.inputBorder}` }}>
+                                        <img src={photo.thumb} alt={photo.name || "Surf-Foto"} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                                        <button onClick={() => deletePhoto(photo.id, dayData.day)} style={{ position: "absolute", top: 2, right: 2, background: "rgba(0,0,0,0.6)", color: "white", border: "none", borderRadius: "50%", width: 20, height: 20, fontSize: 10, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}>✕</button>
+                                      </div>
+                                    ))}
+                                  </div>
+                                )}
+                                {(!diaryPhotos[dayData.day] || diaryPhotos[dayData.day].length === 0) && (
+                                  <div style={{ textAlign: "center", padding: "12px 0", color: t.text3, fontSize: 12 }}>Noch keine Fotos – halte deine Sessions fest!</div>
+                                )}
+                              </div>
                               {diary[dayData.day]?.date && (
                                 <div style={{ fontFamily: "'Space Mono', monospace", fontSize: 10, color: t.text3, textAlign: "right" }}>
                                   Erstellt: {new Date(diary[dayData.day].date).toLocaleDateString("de-DE", { day: "numeric", month: "short" })}
@@ -628,6 +870,121 @@ export default function SurfApp() {
             </div>
           )}
         </main>
+        {/* Equipment Berater Modal */}
+        {showEquipment && (
+          <div onClick={() => setShowEquipment(false)} style={{ position: "fixed", inset: 0, zIndex: 1000, background: "rgba(0,0,0,0.5)", backdropFilter: "blur(8px)", display: "flex", alignItems: "center", justifyContent: "center", padding: 16, animation: "fadeIn 0.3s ease" }}>
+            <div onClick={e => e.stopPropagation()} style={{ background: dm ? "#1a2332" : "#FFFDF7", borderRadius: 24, maxWidth: 520, width: "100%", maxHeight: "85vh", overflow: "auto", padding: "28px 24px", boxShadow: "0 25px 60px rgba(0,0,0,0.3)", animation: "slideUp 0.4s ease" }}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
+                <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: 22, fontWeight: 800, color: t.text, margin: 0 }}>🏄 Board-Berater</h2>
+                <button onClick={() => setShowEquipment(false)} style={{ background: dm ? "rgba(255,255,255,0.1)" : "#F5F5F5", border: "none", borderRadius: "50%", width: 36, height: 36, fontSize: 18, cursor: "pointer", color: t.text3 }}>✕</button>
+              </div>
+              <div style={{ marginBottom: 16 }}>
+                <label style={{ display: "block", fontFamily: "'DM Sans', sans-serif", fontSize: 13, fontWeight: 600, color: t.text2, marginBottom: 6 }}>Dein Gewicht (kg)</label>
+                <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                  <input type="range" min={40} max={120} value={eqWeight} onChange={e => setEqWeight(Number(e.target.value))} style={{ flex: 1, accentColor: "#009688" }} />
+                  <span style={{ fontFamily: "'Space Mono', monospace", fontSize: 18, fontWeight: 700, color: t.accent, minWidth: 50 }}>{eqWeight} kg</span>
+                </div>
+              </div>
+              {(() => {
+                const rec = recommendBoard(eqWeight, experience || "zero");
+                return (
+                  <>
+                    <div style={{ background: dm ? "rgba(0,150,136,0.1)" : "#E0F2F1", borderRadius: 14, padding: "12px 16px", marginBottom: 16, textAlign: "center" }}>
+                      <div style={{ fontFamily: "'Space Mono', monospace", fontSize: 10, color: t.accent, textTransform: "uppercase", marginBottom: 4 }}>Empfohlenes Volume</div>
+                      <div style={{ fontFamily: "'Playfair Display', serif", fontSize: 32, fontWeight: 800, color: t.accent }}>{rec.volume}L</div>
+                      <div style={{ fontSize: 11, color: t.text2 }}>bei {eqWeight}kg · {EXPERIENCE_LEVELS.find(e => e.id === (experience || "zero"))?.label}</div>
+                    </div>
+                    <div style={{ marginBottom: 16 }}>
+                      <div style={{ fontFamily: "'Space Mono', monospace", fontSize: 10, color: t.text3, textTransform: "uppercase", marginBottom: 8 }}>Board-Empfehlungen</div>
+                      {rec.boards.map((b, i) => (
+                        <div key={i} style={{ display: "flex", gap: 10, padding: "10px 14px", background: b.best ? (dm ? "rgba(0,150,136,0.12)" : "#E0F2F1") : t.inputBg, border: `1px solid ${b.best ? t.accent : t.inputBorder}`, borderRadius: 12, marginBottom: 8 }}>
+                          <span style={{ fontSize: 24 }}>{b.emoji}</span>
+                          <div style={{ flex: 1 }}>
+                            <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 14, fontWeight: 700, color: t.text }}>{b.type} {b.best && <span style={{ fontSize: 10, color: t.accent }}>★ TOP</span>}</div>
+                            <div style={{ fontFamily: "'Space Mono', monospace", fontSize: 11, color: t.accent }}>{b.volume}</div>
+                            <div style={{ fontSize: 12, color: t.text2, marginTop: 2 }}>{b.reason}</div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                    <div style={{ background: dm ? "rgba(255,183,77,0.1)" : "#FFF8E1", borderRadius: 12, padding: "10px 14px", border: "1px dashed #FFB74D" }}>
+                      <div style={{ fontFamily: "'Space Mono', monospace", fontSize: 10, color: "#E65100", textTransform: "uppercase", marginBottom: 4 }}>Finnen-Setup</div>
+                      <div style={{ fontSize: 13, fontWeight: 600, color: t.text }}>{rec.fins.setup}</div>
+                      <div style={{ fontSize: 12, color: t.text2 }}>{rec.fins.reason}</div>
+                    </div>
+                  </>
+                );
+              })()}
+            </div>
+          </div>
+        )}
+        {/* Skill Tree Modal */}
+        {showSkillTree && (
+          <div onClick={() => setShowSkillTree(false)} style={{ position: "fixed", inset: 0, zIndex: 1000, background: "rgba(0,0,0,0.5)", backdropFilter: "blur(8px)", display: "flex", alignItems: "center", justifyContent: "center", padding: 16, animation: "fadeIn 0.3s ease" }}>
+            <div onClick={e => e.stopPropagation()} style={{ background: dm ? "#1a2332" : "#FFFDF7", borderRadius: 24, maxWidth: 560, width: "100%", maxHeight: "85vh", overflow: "auto", padding: "28px 24px", boxShadow: "0 25px 60px rgba(0,0,0,0.3)", animation: "slideUp 0.4s ease" }}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 20 }}>
+                <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: 22, fontWeight: 800, color: t.text, margin: 0 }}>🌳 Skill Tree</h2>
+                <button onClick={() => setShowSkillTree(false)} style={{ background: dm ? "rgba(255,255,255,0.1)" : "#F5F5F5", border: "none", borderRadius: "50%", width: 36, height: 36, fontSize: 18, cursor: "pointer", color: t.text3 }}>✕</button>
+              </div>
+              {[1, 2, 3, 4].map(tier => {
+                const tierSkills = SKILL_TREE.filter(s => s.tier === tier);
+                if (tierSkills.length === 0) return null;
+                const tierLabels = ["", "🌱 Grundlagen", "🌿 Aufbau", "🌳 Intermediate", "🏔 Advanced"];
+                return (
+                  <div key={tier} style={{ marginBottom: 20 }}>
+                    <div style={{ fontFamily: "'Space Mono', monospace", fontSize: 10, color: t.text3, textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 8 }}>{tierLabels[tier]}</div>
+                    <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+                      {tierSkills.map(skill => {
+                        const completedLessons = skill.lessons.filter(title => {
+                          return Object.keys(completed).some(key => {
+                            const lesson = program?.program?.flatMap(d => d.lessons).find(l => l.id === key);
+                            return lesson && lesson.title === title && completed[key];
+                          });
+                        });
+                        const progress = skill.lessons.length > 0 ? completedLessons.length / skill.lessons.length : 0;
+                        const unlocked = progress >= 1;
+                        const prereqMet = !skill.requires || skill.requires.every(reqId => {
+                          const req = SKILL_TREE.find(s => s.id === reqId);
+                          if (!req) return true;
+                          return req.lessons.every(title => Object.keys(completed).some(key => {
+                            const lesson = program?.program?.flatMap(d => d.lessons).find(l => l.id === key);
+                            return lesson && lesson.title === title && completed[key];
+                          }));
+                        });
+                        return (
+                          <div key={skill.id} style={{ flex: "1 1 calc(50% - 4px)", minWidth: 140, background: unlocked ? (dm ? "rgba(0,150,136,0.15)" : "#E0F2F1") : prereqMet ? t.inputBg : (dm ? "rgba(255,255,255,0.02)" : "#FAFAFA"), border: `1px solid ${unlocked ? t.accent : prereqMet ? t.inputBorder : (dm ? "#1e2d3d" : "#EEEEEE")}`, borderRadius: 14, padding: "12px", opacity: prereqMet ? 1 : 0.4, transition: "all 0.3s ease" }}>
+                            <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6 }}>
+                              <span style={{ fontSize: 22, filter: unlocked ? "none" : "grayscale(0.5)" }}>{skill.icon}</span>
+                              <div>
+                                <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: 13, fontWeight: 700, color: unlocked ? t.accent : t.text }}>{skill.name}</div>
+                                {unlocked && <span style={{ fontSize: 10, color: t.accent }}>✓ Gemeistert</span>}
+                              </div>
+                            </div>
+                            <div style={{ fontSize: 11, color: t.text2, marginBottom: 6, lineHeight: 1.4 }}>{skill.desc}</div>
+                            <div style={{ background: dm ? "rgba(255,255,255,0.1)" : "#E0E0E0", borderRadius: 6, height: 5, overflow: "hidden" }}>
+                              <div style={{ background: unlocked ? t.accent : "#FFB74D", height: "100%", borderRadius: 6, transition: "width 0.5s ease", width: `${progress * 100}%` }} />
+                            </div>
+                            <div style={{ fontFamily: "'Space Mono', monospace", fontSize: 9, color: t.text3, marginTop: 4 }}>{completedLessons.length}/{skill.lessons.length} Lektionen</div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                );
+              })}
+              <div style={{ textAlign: "center", padding: "12px 0", borderTop: `1px dashed ${dm ? "#2d3f50" : "#E0E0E0"}`, marginTop: 8 }}>
+                <span style={{ fontFamily: "'Space Mono', monospace", fontSize: 11, color: t.text3 }}>
+                  {SKILL_TREE.filter(s => {
+                    return s.lessons.every(title => Object.keys(completed).some(key => {
+                      const lesson = program?.program?.flatMap(d => d.lessons).find(l => l.id === key);
+                      return lesson && lesson.title === title && completed[key];
+                    }));
+                  }).length} / {SKILL_TREE.length} Skills gemeistert
+                </span>
+              </div>
+            </div>
+          </div>
+        )}
         <LessonModal lesson={openLesson} onClose={() => setOpenLesson(null)} dm={dm} />
       </div>
     </>

@@ -99,3 +99,59 @@ export const CONTENT_POOL = {
     { title: "Wipeout Recovery", icon: "🌪️", duration: "30 Min", level: "intermediate", phase: "mid", content: "Wipeouts gehören dazu. Wer sie meistert, surft mutiger.", steps: ["Arme schützend über den Kopf", "Fötus-Position unter Wasser", "Warten bis Turbulenz nachlässt", "Luftblasen zeigen nach oben", "Board per Leash ziehen", "Richtung checken"], proTip: "30 Sekunden Luft anhalten reichen für 95% aller Wipeouts.", videoUrl: "https://www.youtube.com/embed/MyJJedytKR4" },
   ]
 };
+
+// B3: Equipment-Berater – Board Volume & Sizing
+export function recommendBoard(weightKg, experience) {
+  // Volume multipliers based on experience
+  const multipliers = { zero: 1.0, few: 0.85, some: 0.65, regular: 0.45 };
+  const mult = multipliers[experience] || 1.0;
+  const volume = Math.round(weightKg * mult);
+
+  // Board type recommendation
+  const boards = [];
+  if (experience === "zero" || experience === "few") {
+    boards.push(
+      { type: "Softboard 8'0", emoji: "🟡", volume: `${Math.round(weightKg * 0.95)}-${Math.round(weightKg * 1.1)}L`, reason: "Maximale Stabilität und Sicherheit, perfekt zum Lernen", best: true },
+      { type: "Longboard 9'0", emoji: "🟠", volume: `${Math.round(weightKg * 0.85)}-${Math.round(weightKg * 1.0)}L`, reason: "Klassisch, viel Gleiten, gut für kleine Wellen" },
+    );
+    if (experience === "few") {
+      boards.push({ type: "Funboard 7'6", emoji: "🟢", volume: `${Math.round(weightKg * 0.7)}-${Math.round(weightKg * 0.85)}L`, reason: "Kompromiss aus Stabilität und Wendigkeit" });
+    }
+  } else if (experience === "some") {
+    boards.push(
+      { type: "Funboard 7'0", emoji: "🟢", volume: `${Math.round(weightKg * 0.6)}-${Math.round(weightKg * 0.75)}L`, reason: "Vielseitig, gutes Übergangsboard", best: true },
+      { type: "Fish 5'10", emoji: "🐟", volume: `${Math.round(weightKg * 0.55)}-${Math.round(weightKg * 0.65)}L`, reason: "Breit und schnell, perfekt für kleinere Wellen" },
+      { type: "Longboard 9'0", emoji: "🟠", volume: `${Math.round(weightKg * 0.7)}-${Math.round(weightKg * 0.85)}L`, reason: "Für small days und Noseriding" },
+    );
+  } else {
+    boards.push(
+      { type: "Shortboard 6'0", emoji: "🔴", volume: `${Math.round(weightKg * 0.38)}-${Math.round(weightKg * 0.48)}L`, reason: "Maximale Performance und Manövrierfähigkeit", best: true },
+      { type: "Fish 5'8", emoji: "🐟", volume: `${Math.round(weightKg * 0.45)}-${Math.round(weightKg * 0.55)}L`, reason: "Alternativ für kleinere, kraftlose Wellen" },
+      { type: "Step-Up 6'6", emoji: "🔵", volume: `${Math.round(weightKg * 0.42)}-${Math.round(weightKg * 0.52)}L`, reason: "Für größere, kraftvollere Tage" },
+    );
+  }
+
+  // Fin setup
+  const fins = experience === "zero" || experience === "few"
+    ? { setup: "Single Fin oder 2+1", reason: "Stabil, geradeaus, verzeihend" }
+    : experience === "some"
+    ? { setup: "Thruster (3 Finnen)", reason: "Vielseitig, guter Halt in Turns" }
+    : { setup: "Thruster oder Quad", reason: "Thruster für Power, Quad für Speed" };
+
+  return { volume, boards, fins };
+}
+
+// D3: Skill Tree – Skill definitions mapped to lesson titles
+export const SKILL_TREE = [
+  { id: "ocean", name: "Ozean verstehen", icon: "🌊", tier: 1, lessons: ["Ozean lesen lernen", "Wellentypen verstehen"], desc: "Wellen, Sets und Breaks lesen" },
+  { id: "safety", name: "Sicherheit", icon: "🛟", tier: 1, lessons: ["Sicherheit im Wasser", "Strömungen & Channels"], desc: "Rip Currents, Gefahren, Channels" },
+  { id: "equipment", name: "Equipment", icon: "🏄", tier: 1, lessons: ["Dein erstes Surfboard", "Dein Board kennen", "Wetsuit & Zubehör"], desc: "Board, Wetsuit, Zubehör wählen" },
+  { id: "paddle", name: "Paddeln", icon: "💪", tier: 1, lessons: ["Paddeltechnik perfektionieren"], desc: "Effizient und kraftvoll paddeln" },
+  { id: "popup", name: "Pop-Up", icon: "⚡", tier: 2, requires: ["paddle"], lessons: ["Pop-Up an Land üben", "Whitewash-Wellen reiten"], desc: "Vom Liegen zum Stehen in einer Bewegung" },
+  { id: "etiquette", name: "Etikette", icon: "🤝", tier: 2, requires: ["ocean"], lessons: ["Surf-Etikette & Vorfahrt"], desc: "Lineup-Regeln und Respekt" },
+  { id: "stance", name: "Stance", icon: "⚖️", tier: 2, requires: ["popup"], lessons: ["Stance & Gewichtsverlagerung"], desc: "Balance und Gewichtskontrolle" },
+  { id: "greenwaves", name: "Grüne Wellen", icon: "🟢", tier: 3, requires: ["popup", "ocean"], lessons: ["Grüne Wellen anpaddeln", "Angled Take-Off"], desc: "Ungebrochene Wellen fangen" },
+  { id: "lineup", name: "Lineup", icon: "🧭", tier: 3, requires: ["etiquette", "safety"], lessons: ["Lineup Navigation", "Wave Positioning"], desc: "Position und Timing im Lineup" },
+  { id: "bottomturn", name: "Bottom Turn", icon: "↩️", tier: 3, requires: ["stance", "greenwaves"], lessons: ["Bottom Turn Basics", "Linie halten & Trimmen"], desc: "Fundament aller Manöver" },
+  { id: "advanced", name: "Manöver", icon: "🔄", tier: 4, requires: ["bottomturn"], lessons: ["Cutback & Top Turn", "Speed Pumping"], desc: "Cutback, Top Turn, Speed Generation" },
+];
