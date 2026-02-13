@@ -316,7 +316,7 @@ export default function SurfApp() {
   const spots = SURF_SPOTS.filter(s => s.name.toLowerCase().includes(spotSearch.toLowerCase()) || s.waveType.toLowerCase().includes(spotSearch.toLowerCase()));
 
   // Smart Coaching
-  const coaching = React.useMemo(() => analyzeDiary(diary), [diary]);
+  const coaching = React.useMemo(() => analyzeDiary(diary, CONTENT_POOL), [diary]);
   const savedSpot = hasSaved ? SURF_SPOTS.find(s => s.id === spot) : null;
   const savedGoal = hasSaved ? GOALS.find(g => g.id === goal) : null;
 
@@ -943,19 +943,26 @@ export default function SurfApp() {
                               </div>
                               {/* Instant Coach Tip */}
                               {(() => {
-                                const entryTips = analyzeEntry(diary[dayData.day]);
+                                const entry = diary[dayData.day];
+                                if (!entry) return null;
+                                const text = [entry.whatFailed || "", entry.notes || ""].join(" ").toLowerCase();
+                                if (!text.trim()) return null;
+                                const entryTips = coaching.tips.filter(tip =>
+                                  tip.lessons.some(l => tip.tip && text.split(" ").some(w => w.length > 3 && tip.tip.toLowerCase().includes(w)))
+                                ).slice(0, 2);
+                                if (entryTips.length === 0 && coaching.tips.length > 0) return null;
                                 if (entryTips.length === 0) return null;
                                 return (
                                   <div style={{ borderTop: `1px dashed ${dm ? "#2d3f50" : "#E0E0E0"}`, paddingTop: 10, marginTop: 4, marginBottom: 8 }}>
                                     <div style={{ fontFamily: "'Space Mono', monospace", fontSize: 10, color: dm ? "#CE93D8" : "#7B1FA2", textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 8 }}>💡 Coach-Tipp</div>
                                     {entryTips.map((tip, i) => (
                                       <div key={i} style={{ display: "flex", gap: 8, padding: "8px 10px", background: dm ? "rgba(186,104,200,0.08)" : "#F3E5F5", borderRadius: 10, marginBottom: 6, fontSize: 12, color: dm ? "#e8eaed" : "#4A148C" }}>
-                                        <span>{tip.emoji}</span>
+                                        <span>{tip.icon}</span>
                                         <div>
                                           <div style={{ fontWeight: 600, marginBottom: 2 }}>{tip.tip}</div>
                                           <div style={{ display: "flex", gap: 4, flexWrap: "wrap" }}>
                                             {tip.lessons.slice(0, 2).map((lesson, j) => (
-                                              <span key={j} onClick={() => { const found = program?.program?.flatMap(d => d.lessons).find(l => l.title === lesson); if (found) setOpenLesson(found); }} style={{ fontFamily: "'Space Mono', monospace", fontSize: 9, color: dm ? "#CE93D8" : "#7B1FA2", background: dm ? "rgba(186,104,200,0.15)" : "#EDE7F6", padding: "1px 6px", borderRadius: 6, cursor: "pointer" }}>→ {lesson}</span>
+                                              <span key={j} onClick={() => { const found = program?.program?.flatMap(d => d.lessons).find(l => l.title === lesson.title); if (found) setOpenLesson(found); }} style={{ fontFamily: "'Space Mono', monospace", fontSize: 9, color: dm ? "#CE93D8" : "#7B1FA2", background: dm ? "rgba(186,104,200,0.15)" : "#EDE7F6", padding: "1px 6px", borderRadius: 6, cursor: "pointer" }}>→ {lesson.title}</span>
                                             ))}
                                           </div>
                                         </div>

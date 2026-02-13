@@ -235,69 +235,6 @@ export const SKILL_TREE = [
   { id: "advanced", name: "Manöver", icon: "🔄", tier: 4, requires: ["bottomturn"], lessons: ["Cutback & Top Turn", "Speed Pumping"], desc: "Cutback, Top Turn, Speed Generation" },
 ];
 
-// Sprint 10: Smart Coaching – Keyword → Lesson Mapping
-const COACHING_RULES = [
-  { keywords: ["pop-up", "popup", "aufstehen", "hochkommen", "knie", "zu langsam aufgestanden"], category: "popup", lessons: ["Pop-Up an Land üben", "Pop-Up Drill Warm-Up"], tip: "Übe den Pop-Up 50x täglich an Land – Muskelgedächtnis ist alles!", emoji: "⚡" },
-  { keywords: ["paddeln", "paddel", "arme", "müde", "ausdauer", "welle verpasst", "nicht rangekommen", "zu spät gepaddelt"], category: "paddle", lessons: ["Paddeltechnik perfektionieren", "Paddel-Power Warm-Up"], tip: "Paddle früher und härter als du denkst – #1 Anfängerfehler!", emoji: "💪" },
-  { keywords: ["balance", "wackelig", "gefallen", "gleichgewicht", "stance", "instabil", "umgefallen", "abgerutscht"], category: "balance", lessons: ["Stance & Gewichtsverlagerung", "Balance-Training"], tip: "Knie tiefer beugen und Blick zum Horizont – nie auf die Füße schauen!", emoji: "⚖️" },
-  { keywords: ["timing", "zu früh", "zu spät", "welle verpasst", "nicht erwischt", "falsche welle"], category: "timing", lessons: ["Grüne Wellen anpaddeln", "Ozean lesen lernen", "Wave Positioning"], tip: "Beobachte 2-3 Sets bevor du paddelst. Geduld = bessere Wellen!", emoji: "⏱️" },
-  { keywords: ["angst", "panik", "wipeout", "unter wasser", "nervös", "unsicher", "überwältigt"], category: "fear", lessons: ["Wipeout Recovery", "Atem & Apnoe-Training", "Sicherheit im Wasser"], tip: "Angst ist normal. Atem-Training reduziert Panik bei Wipeouts enorm.", emoji: "🧘" },
-  { keywords: ["strömung", "rip", "abgetrieben", "current", "weggezogen"], category: "currents", lessons: ["Strömungen & Channels", "Sicherheit im Wasser"], tip: "Nie gegen eine Strömung schwimmen – immer quer dazu paddeln!", emoji: "🛟" },
-  { keywords: ["wellen lesen", "welche welle", "peak", "lineup position", "falsch positioniert"], category: "positioning", lessons: ["Wave Positioning", "Lineup Navigation", "Ozean lesen lernen"], tip: "Landmarks nutzen! Merke dir Punkte am Strand für deine Position.", emoji: "🧭" },
-  { keywords: ["turn", "bottom turn", "cutback", "richtungswechsel", "nicht drehen", "kurve", "manöver"], category: "turns", lessons: ["Bottom Turn Basics", "Cutback & Top Turn", "Linie halten & Trimmen"], tip: "Blick und Schultern führen den Turn – das Board folgt deinem Oberkörper!", emoji: "↩️" },
-  { keywords: ["speed", "geschwindigkeit", "langsam auf der welle", "keine speed", "pumpen"], category: "speed", lessons: ["Speed Pumping", "Linie halten & Trimmen"], tip: "Bleib in der Powerpocket – direkt unter der brechenden Lippe ist die Energie.", emoji: "🚀" },
-  { keywords: ["board zu klein", "board zu groß", "falsche board", "sinke ein", "board wackelt", "kippelig", "nosedive", "pearl"], category: "board", lessons: ["Dein Board kennen", "Surfboard Volume & Sizing"], tip: "Board-Probleme? Prüfe dein Volume im Board-Berater!", emoji: "🏄", boardHint: true },
-  { keywords: ["vorfahrt", "droppen", "gedroppt", "snaking", "ärger", "stress im lineup", "angemeckert"], category: "etiquette", lessons: ["Surf-Etikette & Vorfahrt"], tip: "Wer dem Peak am nächsten ist, hat Vorfahrt. Lächeln öffnet jedes Lineup!", emoji: "🤝" },
-  { keywords: ["fitness", "kraft", "erschöpft", "keine kraft", "muskelkater", "kaputt", "fertig"], category: "fitness", lessons: ["Surf-Fitness Grundlagen", "Core Activation", "Paddel-Power Warm-Up"], tip: "Schwimmen ist das beste Surf-Training. 2x pro Woche reicht!", emoji: "🏋️" },
-];
-
-export function analyzeDiary(diaryEntries) {
-  const tips = [];
-  const seenCategories = new Set();
-  const allText = Object.values(diaryEntries || {}).map(e =>
-    [e.whatFailed || "", e.notes || "", e.whatWorked || ""].join(" ")
-  ).join(" ").toLowerCase();
-  if (!allText.trim()) return { tips: [], boardHint: false, patterns: [] };
-
-  for (const rule of COACHING_RULES) {
-    const count = rule.keywords.reduce((sum, kw) => sum + (allText.split(kw).length - 1), 0);
-    if (count > 0 && !seenCategories.has(rule.category)) {
-      seenCategories.add(rule.category);
-      tips.push({ ...rule, count });
-    }
-  }
-  tips.sort((a, b) => b.count - a.count);
-
-  // Recurring patterns (mentioned in 2+ separate entries)
-  const patterns = [];
-  const entries = Object.values(diaryEntries || {});
-  if (entries.length >= 2) {
-    for (const rule of COACHING_RULES) {
-      let entryCount = 0;
-      for (const e of entries) {
-        const text = [e.whatFailed || "", e.notes || ""].join(" ").toLowerCase();
-        if (rule.keywords.some(kw => text.includes(kw))) entryCount++;
-      }
-      if (entryCount >= 2) patterns.push({ category: rule.category, emoji: rule.emoji, name: rule.category, count: entryCount, tip: rule.tip });
-    }
-  }
-
-  return { tips: tips.slice(0, 3), boardHint: tips.some(t => t.boardHint), patterns: patterns.slice(0, 2) };
-}
-
-export function analyzeEntry(entry) {
-  if (!entry) return [];
-  const text = [entry.whatFailed || "", entry.notes || ""].join(" ").toLowerCase();
-  if (!text.trim()) return [];
-  const matches = [];
-  const seen = new Set();
-  for (const rule of COACHING_RULES) {
-    if (seen.has(rule.category)) continue;
-    if (rule.keywords.some(kw => text.includes(kw))) { seen.add(rule.category); matches.push(rule); }
-  }
-  return matches.slice(0, 2);
-}
-
 // Sprint 10: Smart Coaching – Keyword → Lesson matching
 const COACHING_RULES = [
   { keywords: ["pop-up", "popup", "aufstehen", "hochkommen", "knie", "zu langsam aufgestanden"], lessons: ["Pop-Up an Land üben"], tip: "Übe den Pop-Up 50x am Tag an Land – Muskelgedächtnis ist der Schlüssel!", icon: "⚡" },
