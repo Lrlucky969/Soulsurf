@@ -76,6 +76,59 @@ export const LOCAL_POIS = {
     { name: "Ribeira d'Ilhas", type: "spot", lat: 38.98, lng: -9.42, desc: "Bekanntester Spot in Ericeira" },
     { name: "58 Surf Shop", type: "shop", lat: 38.96, lng: -9.42, desc: "Lokaler Shop in der Altstadt" },
   ],
+  itacare: [
+    { name: "Easy Drop Surf Camp", type: "school", lat: -14.28, lng: -38.99, desc: "Surfschule mit Camps direkt am Regenwald" },
+    { name: "Itacaré Surf School", type: "school", lat: -14.28, lng: -39.00, desc: "Lokale Surfschule mit erfahrenen Instructors" },
+    { name: "Praia da Tiririca", type: "spot", lat: -14.28, lng: -38.99, desc: "Hauptspot – konsistenter Beachbreak, oft hohl" },
+    { name: "Praia da Ribeira", type: "spot", lat: -14.27, lng: -39.01, desc: "Ruhigerer Spot im Ort, gut für Anfänger" },
+    { name: "Itacaré Surf Shop", type: "shop", lat: -14.28, lng: -38.99, desc: "Board-Rental und Wax im Zentrum" },
+  ],
+  floripa: [
+    { name: "Floripa Surf School", type: "school", lat: -27.60, lng: -48.45, desc: "Surfunterricht an Praia Mole und Joaquina" },
+    { name: "East Coast Surf School", type: "school", lat: -27.63, lng: -48.45, desc: "Surfcamp am Joaquina Beach" },
+    { name: "Praia Mole", type: "spot", lat: -27.60, lng: -48.44, desc: "Beliebtester Surf-Strand, lebendige Szene" },
+    { name: "Joaquina", type: "spot", lat: -27.63, lng: -48.45, desc: "Konsistenter Beachbreak, WSL-Events" },
+    { name: "Mormaii Surf Shop", type: "shop", lat: -27.60, lng: -48.47, desc: "Brasiliens bekannteste Surf-Marke, Flagship Store" },
+  ],
+  saquarema: [
+    { name: "Saquarema Surf School", type: "school", lat: -22.93, lng: -42.49, desc: "Surfunterricht am berühmten Itaúna Beach" },
+    { name: "Praia de Itaúna", type: "spot", lat: -22.93, lng: -42.49, desc: "'Maracanã des Surfens' – WSL-Championship-Spot" },
+    { name: "Barrinha", type: "spot", lat: -22.92, lng: -42.51, desc: "Geschützter Spot, besser für Intermediates" },
+    { name: "Saquá Surf Shop", type: "shop", lat: -22.92, lng: -42.49, desc: "Lokaler Shop mit Boards und Repairs" },
+  ],
+  nicaragua: [
+    { name: "Surf Ranch Nicaragua", type: "school", lat: 11.25, lng: -85.87, desc: "Surfcamp mit Pool und Unterricht" },
+    { name: "Arena Caliente Surf School", type: "school", lat: 11.23, lng: -85.88, desc: "Lokale Surfschule in San Juan del Sur" },
+    { name: "Playa Maderas", type: "spot", lat: 11.22, lng: -85.92, desc: "Perfekter Lern-Spot, Offshore-Wind am Morgen" },
+    { name: "Playa Remanso", type: "spot", lat: 11.21, lng: -85.90, desc: "Ruhiger Beachbreak südlich von San Juan" },
+    { name: "SJDS Surf Shop", type: "shop", lat: 11.25, lng: -85.87, desc: "Board-Rental und Zubehör in der Stadt" },
+  ],
+  maldives: [
+    { name: "Tropicsurf Maldives", type: "school", lat: 3.20, lng: 73.22, desc: "Luxus-Surf-Coaching auf den Atollen" },
+    { name: "Pasta Point", type: "spot", lat: 4.26, lng: 73.52, desc: "Legendäre Linkswelle – nur per Boot erreichbar" },
+    { name: "Sultans", type: "spot", lat: 4.19, lng: 73.52, desc: "Langer Rechts-Pointbreak im Nord-Malé-Atoll" },
+    { name: "Cinnamon Dhonveli", type: "spot", lat: 4.30, lng: 73.48, desc: "Resort mit eigenem Surf-Break direkt vor der Tür" },
+  ],
+  mentawai: [
+    { name: "Mentawai Surf Charters", type: "school", lat: -2.08, lng: 99.53, desc: "Boat-Trips zu den besten Breaks" },
+    { name: "Lance's Right (HT's)", type: "spot", lat: -2.08, lng: 99.53, desc: "Weltklasse Rechts-Barrel über Riff" },
+    { name: "Macaronis", type: "spot", lat: -2.15, lng: 99.42, desc: "Perfekte Linkswelle – einer der besten Spots der Welt" },
+    { name: "Kandui Resort", type: "spot", lat: -2.10, lng: 99.50, desc: "Resort mit Zugang zu mehreren Weltklasse-Wellen" },
+  ],
+  jeffreys: [
+    { name: "J-Bay Surf School", type: "school", lat: -34.05, lng: 24.93, desc: "Surfunterricht an der legendären J-Bay" },
+    { name: "Supertubes", type: "spot", lat: -34.05, lng: 24.94, desc: "Eine der besten Rechtswellen der Welt" },
+    { name: "Kitchen Windows", type: "spot", lat: -34.04, lng: 24.92, desc: "Langer Point für Longboarder und Intermediates" },
+    { name: "Country Feeling Surf Shop", type: "shop", lat: -34.05, lng: 24.93, desc: "Lokaler Surfshop mit Board-Rental" },
+  ],
+  siargao: [
+    { name: "Kermit Surf School", type: "school", lat: 9.85, lng: 126.16, desc: "Beliebte Surfschule in General Luna" },
+    { name: "Harana Surf Resort", type: "school", lat: 9.85, lng: 126.16, desc: "Surf-Resort mit täglichem Unterricht" },
+    { name: "Cloud 9", type: "spot", lat: 9.85, lng: 126.17, desc: "Weltberühmte hohle Rechtswelle über Riff" },
+    { name: "Jacking Horse", type: "spot", lat: 9.84, lng: 126.16, desc: "Sanfterer Break, gut für Intermediates" },
+    { name: "Stimpy's", type: "spot", lat: 9.84, lng: 126.15, desc: "Anfängerfreundlicher Spot nahe General Luna" },
+    { name: "Siargao Surf Shop", type: "shop", lat: 9.85, lng: 126.16, desc: "Board-Rental und Repairs in General Luna" },
+  ],
 };
 
 // Trip packing checklist
